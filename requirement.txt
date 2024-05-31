@@ -1,0 +1,51 @@
+#boost
+sudo apt-get install libboost-all-dev
+
+#yaml-cpp
+git clone https://github.com/jbeder/yaml-cpp.git
+cd yaml-cpp/
+cmake -S . -B build
+cd build
+sudo make & make install
+
+#ragel
+sudo apt install ragel
+
+#ssl
+sudo apt-get install libssl-dev
+
+#json
+sudo apt install libjsoncpp-dev
+
+#zookeeper
+sudo apt install maven
+sudo apt install openjdk-11-jdk
+wget https://downloads.apache.org/zookeeper/zookeeper-3.9.2/apache-zookeeper-3.9.2-bin.tar.gz
+cd zookeeper/apache-zookeeper-3.9.2/zookeeper-jute/
+mvn compile
+cd zookeeper/apache-zookeeper-3.9.2/zookeeper-cleint/zookeeper-client-c/
+autoreconf -if
+./configure
+make -j4
+
+#hiredis-vip
+git clone https://github.com/vipshop/hiredis-vip.git
+cd hiredis-vip
+make
+sudo make install
+
+#mysqlclient
+sudo apt install libmysqlclient-dev
+
+#tinyxml2
+sudo apt update
+sudo apt install libtinyxml2-dev
+
+# Jemalloc 
+sudo apt install libjemalloc-dev
+
+#sqlite3
+sudo apt install libsqlite3-dev
+
+
+
