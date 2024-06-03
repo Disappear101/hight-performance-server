@@ -22,6 +22,15 @@ const char* LogLevel::ToString(LogLevel::Level level) {
     return "UNKNOW";
 }
 
+LogEventWrap::LogEventWrap::LogEventWrap(LogEvent::ptr event) 
+    :m_event(event) {
+}
+
+//deconstructing stage execute log output 
+LogEventWrap::LogEventWrap::~LogEventWrap() {
+    m_event->getLogger()->log(m_event->getLevel(), m_event);
+}
+
 class MessageFormatItem : public LogFormatter::FormatItem {
 public:
     MessageFormatItem(const std::string& str = std::string()) {}
@@ -159,9 +168,10 @@ LogEvent::LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level
 
 
 Logger::Logger(const std::string& name, LogLevel::Level level)
-    :m_name(name)
-    ,m_level(level){
-        m_formatter.reset(new LogFormatter("%d%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"));
+        :m_name(name)
+        ,m_level(level){
+    m_formatter.reset(new LogFormatter("%d%T%t%T%N%T%F%T[%p]%T[%c]%T%f:%l%T%m%n"));
+    //m_appenders.push_back(std::make_shared<StdoutLogAppender>());
 }
 
 void Logger::addAppender(LogAppender::ptr appender){
@@ -180,6 +190,10 @@ void Logger::delAppender(LogAppender::ptr appender){
 
 void Logger::log(LogLevel::Level level, LogEvent::ptr event){
     auto self = shared_from_this();
+    if (m_appenders.empty()) {
+        std::cout << "No available appender! please add appender!" <<  std::endl;
+        return;
+    }
     if (level >= m_level) {
         for (auto & i : m_appenders) {
             i->log(self, level, event);
@@ -205,11 +219,17 @@ void Logger::fatal(LogEvent::ptr e){
 
 FileLogAppender::FileLogAppender(const std::string& filename)
     :m_filename(filename){
-
+    reopen();
 }
 
 void FileLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) {
     if (level >= m_level) {
+        uint64_t now = event->getTime();
+        if (now >= (m_lastTime + 3)) {
+            reopen();
+            m_lastTime = now;
+        }
+
         m_filestream << m_formatter->format(logger, level, event);
     }
 }
@@ -355,5 +375,28 @@ void LogFormatter::init(){
     //%l -- line number
 }
 
+LoggerManager::LoggerManager() {
+    m_root = std::make_shared<Logger>();
+    m_root->addAppender(std::make_shared<StdoutLogAppender>());
+    m_loggers[m_root->getName()] = m_root;
+
+    init();
+}
+
+Logger::ptr LoggerManager::getLogger(const std::string& name) {
+    auto it = m_loggers.find(name);
+    if(it != m_loggers.end()) {
+        return it->second;
+    }
+
+    Logger::ptr logger = std::make_shared<Logger>(name);
+    //logger->m_root = m_root;
+    m_loggers[name] = logger;
+    return logger;
+}
+
+void LoggerManager::init() {
+
+}
 
 }

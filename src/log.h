@@ -3,12 +3,35 @@
 
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <stdint.h>
 #include <memory>
 #include <list>
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "util.h"
+#include "singleton.h"
+
+//when exit if, LogEventWrap will deconstruct 
+#define SYLAR_LOG_LEVEL(logger, level) \
+    if (logger->getLevel() <= level) \
+        sylar::LogEventWrap(std::make_shared<sylar::LogEvent>(logger, level, \
+                        __FILE__, __LINE__, 0, sylar::GetThreadId(), sylar::GetFiberId(), time(0), "thread0")).getSS()
+
+#define SYLAR_LOG_DEBUG(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::DEBUG)
+
+#define SYLAR_LOG_INFO(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::INFO)
+
+#define SYLAR_LOG_WARN(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::WARN)
+
+#define SYLAR_LOG_ERROR(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::ERROR)
+
+#define SYLAR_LOG_FATAL(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::FATAL)
+
+#define SYLAR_LOG_ROOT() sylar::LoggerMgr::GetInstance()->getRoot()
+
+#define SYLAR_LOG_NAME(name) sylar::LoggerMgr::GetInstance()->getLogger(name)
 
 namespace sylar {
 
@@ -47,6 +70,23 @@ public:
     LogLevel::Level getLevel() const { return m_level;}
     std::string getThreadName() const { return m_threadName;}
     std::shared_ptr<Logger> getLogger() const { return m_logger;}
+
+    template<typename... Args>
+    void format(const char* fmt, Args&&... args) {
+        formatting(fmt, std::forward<Args>(args)...);
+    }
+
+private:
+    template<typename... Args>
+    void formatting(const char* fmt, Args&&... args) {
+        int size = snprintf(nullptr, 0, fmt, args...) + 1;//+1 for '\0'
+        if (size <= 0) {
+            throw std::runtime_error("Error during formatting");
+        }
+        std::unique_ptr<char[]> buf(new char[size]);
+        snprintf(buf.get(), size, fmt, args...);
+        m_ss << std::string(buf.get(), buf.get() + size - 1);
+    }
 private:
     const char* m_file = nullptr;       //filename
     int32_t m_line = 0;                 //line number
@@ -59,6 +99,17 @@ private:
     std::shared_ptr<Logger> m_logger;
     LogLevel::Level m_level;            //log level
     std::stringstream m_ss;             //log stream         
+};
+
+class LogEventWrap {
+public:
+    LogEventWrap(LogEvent::ptr event);
+    ~LogEventWrap();
+
+    LogEvent::ptr getEvent() const { return m_event; }
+    std::stringstream & getSS() {return m_event->getSS(); };
+private:
+    LogEvent::ptr m_event;
 };
 
 class LogFormatter {
@@ -88,11 +139,13 @@ public:
 
     virtual void log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) = 0;
 
-    void setFormatter(LogFormatter::ptr val) {m_formatter = val;};
+    void setFormatter(LogFormatter::ptr val) {m_formatter = val;}
 
     LogFormatter::ptr getFormatter() {return m_formatter;};
 
     void setLevel(LogLevel::Level val) {m_level = val;}
+
+    LogLevel::Level getLevel() const {return m_level; }
 protected:
     LogLevel::Level m_level;
     LogFormatter::ptr m_formatter;
@@ -143,7 +196,37 @@ public:
 private:
     std::string m_filename;
     std::ofstream m_filestream;
+    //last open time
+    uint64_t m_lastTime = 0;
 };
+
+class LoggerManager {
+public:
+    LoggerManager();
+
+    Logger::ptr getLogger(const std::string& name);
+
+    void init();
+
+    Logger::ptr getRoot() const { return m_root;}
+
+private:
+    Logger::ptr m_root;
+
+    std::unordered_map<std::string, Logger::ptr> m_loggers;
+
+};
+
+template<typename... Args>
+inline void sylar_fmt_log_print(std::shared_ptr<Logger> logger, LogLevel::Level level, const char* fmt, Args... args) {
+    if (logger->getLevel() <= level) {
+        sylar::LogEventWrap(std::make_shared<sylar::LogEvent>(logger, level, 
+                        __FILE__, __LINE__, 0, GetThreadId(), GetFiberId(), 
+                        time(0), "thread0")).getEvent()->format(fmt, std::forward<Args>(args)...);
+    }
+}
+
+using LoggerMgr = sylar::Singleton<LoggerManager>;
 
 };
 
