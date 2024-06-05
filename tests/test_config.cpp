@@ -173,6 +173,11 @@ void test_class() {
         SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) <<  prefix << ": size=" << m.size(); \
     }
 
+    g_person->addListener(10, [](const Person& old_value, const Person& new_value){
+        SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "old_value = " << old_value.toString()
+                << " new_value = " << new_value.toString();
+    });
+
     XX_PM(g_person_map, "class.map before");
     SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "before: " << g_person_vec_map->toString();
 
@@ -184,10 +189,23 @@ void test_class() {
     SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "after: " << g_person_vec_map->toString();
 }
 
+void test_log() {
+    static sylar::Logger::ptr system_log = SYLAR_LOG_NAME("system");
+    SYLAR_LOG_INFO(system_log) << "hello system" << std::endl;
+    std::cout << sylar::LoggerMgr::GetInstance()->toYamlString() << std::endl;
+    YAML::Node root = YAML::LoadFile(path);
+    sylar::Config::LoadFromYaml(root);
+    std::cout << "===================" << std::endl;
+    std::cout << sylar::LoggerMgr::GetInstance()->toYamlString() << std::endl;
+    std::cout << "===================" << std::endl;
+    SYLAR_LOG_INFO(system_log) << "hello system" << std::endl;
+}
+
 int main(int argc, char** argv) {
 
     //test_yaml();
     //test_yaml2();
-    test_class();
+    //test_class();
+    test_log();
     return 0;
 }

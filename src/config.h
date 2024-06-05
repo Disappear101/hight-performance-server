@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <boost/lexical_cast.hpp>
+#include <functional>
 #include "log.h"
 #include <yaml-cpp/yaml.h>
 
@@ -170,7 +171,7 @@ public:
 template<class T>
 class Lexical_Cast<std::unordered_map<std::string, T>, std::string> {
 public:
-    std::string operator()(const std::unordered_map<std::string, T>& v) {
+    std::string operator()( std::unordered_map<std::string, T>& v) {
         YAML::Node node(YAML::NodeType::Map);
         for(auto& i : v) {
             node[i.first] = YAML::Load(Lexical_Cast<T, std::string>()(i.second));
@@ -247,6 +248,7 @@ template<class T, class FromStr = Lexical_Cast<std::string, T>
 class ConfigVar : public ConfigVarBase {
 public:
     using ptr = std::shared_ptr<ConfigVar>;
+    using on_change_cb = std::function<void (const T& old_value, const T& new_value)>; 
 
     ConfigVar(const std::string& name
             ,const T& default_val
@@ -263,6 +265,12 @@ public:
     }
 
     void setValue(const T & v) {
+        if (v == m_val) {
+            return;
+        }
+        for (auto& i : m_cbs) {
+            i.second(m_val, v);
+        }
         m_val = v;
     }
 
@@ -289,8 +297,19 @@ public:
     }
     std::string getTypeName() const override { return typeid(T).name(); }
 
+    void addListener(uint64_t key, on_change_cb cb) {
+        m_cbs[key] = cb;
+    }
+    void delListener(uint64_t key) {
+
+    }
+    on_change_cb getListener(uint64_t key) {
+
+    }
 private:
     T m_val;
+    //change call back. std::function has no operatpr==, so use map to wrap it
+    std::map<uint64_t, on_change_cb> m_cbs;
 };
 
 class Config {

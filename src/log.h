@@ -48,6 +48,8 @@ public:
         FATAL = 5
     };
     static const char* ToString(LogLevel::Level level);
+
+    static LogLevel::Level FromString(const std::string& str);
 };
 
 class LogEvent{
@@ -126,6 +128,8 @@ public:
         virtual void format(std::ostream& os, std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) = 0;
     };
     void init();
+    const std::string getPattern() const { return m_pattern; };
+    bool isError() {return m_error; }
 private:
     std::string m_pattern;
     std::vector<FormatItem::ptr> m_items;
@@ -133,13 +137,16 @@ private:
 };
 
 class LogAppender {
+friend class Logger;
 public:
     using ptr = std::shared_ptr<LogAppender>;
     virtual ~LogAppender() {};
 
     virtual void log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) = 0;
 
-    void setFormatter(LogFormatter::ptr val) {m_formatter = val;}
+    virtual std::string toYamlString() = 0;
+
+    void setFormatter(LogFormatter::ptr val);
 
     LogFormatter::ptr getFormatter() {return m_formatter;};
 
@@ -148,6 +155,7 @@ public:
     LogLevel::Level getLevel() const {return m_level; }
 protected:
     LogLevel::Level m_level;
+    bool m_hasFormatter = false;
     LogFormatter::ptr m_formatter;
 };
 
@@ -171,6 +179,15 @@ public:
     void setLevel(LogLevel::Level level) {m_level = level;};
 
     const std::string& getName() const {return m_name;};
+
+    std::string toYamlString();
+
+    void clearAppenders();
+
+    void setFormatter(LogFormatter::ptr val);
+
+    void setFormatter(const std::string& val);
+
 private:
     std::string m_name;                         //log name
     LogLevel::Level m_level;                    //log level   
@@ -183,6 +200,7 @@ class StdoutLogAppender : public LogAppender {
 public:
     using ptr = std::shared_ptr<StdoutLogAppender>;
     virtual void log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) override;
+    virtual std::string toYamlString() override;
 };
 
 //appender of log output to file
@@ -191,6 +209,7 @@ public:
     using ptr = std::shared_ptr<FileLogAppender>;
     FileLogAppender(const std::string& filename);
     virtual void log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) override;
+    virtual std::string toYamlString() override;
 
     bool reopen();
 private:
@@ -209,6 +228,8 @@ public:
     void init();
 
     Logger::ptr getRoot() const { return m_root;}
+
+    std::string toYamlString();
 
 private:
     Logger::ptr m_root;
