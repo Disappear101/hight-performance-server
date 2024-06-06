@@ -12,6 +12,7 @@
 #include <vector>
 #include "util.h"
 #include "singleton.h"
+#include "thread.h"
 
 //when exit if, LogEventWrap will deconstruct 
 #define SYLAR_LOG_LEVEL(logger, level) \
@@ -140,6 +141,7 @@ class LogAppender {
 friend class Logger;
 public:
     using ptr = std::shared_ptr<LogAppender>;
+    using MutexType = SpinLock;
     virtual ~LogAppender() {};
 
     virtual void log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) = 0;
@@ -148,7 +150,7 @@ public:
 
     void setFormatter(LogFormatter::ptr val);
 
-    LogFormatter::ptr getFormatter() {return m_formatter;};
+    LogFormatter::ptr getFormatter();
 
     void setLevel(LogLevel::Level val) {m_level = val;}
 
@@ -157,12 +159,14 @@ protected:
     LogLevel::Level m_level;
     bool m_hasFormatter = false;
     LogFormatter::ptr m_formatter;
+    MutexType m_mutex;
 };
 
 
 class Logger : public std::enable_shared_from_this<Logger>{
 public:
     using ptr = std::shared_ptr<Logger>;
+    using MutexType = SpinLock; 
 
     Logger(const std::string& name = std::string{"root"}, LogLevel::Level level = LogLevel::DEBUG);
     void log(LogLevel::Level level, LogEvent::ptr event);
@@ -188,9 +192,12 @@ public:
 
     void setFormatter(const std::string& val);
 
+    LogFormatter::ptr getFormatter();
+
 private:
     std::string m_name;                         //log name
     LogLevel::Level m_level;                    //log level   
+    MutexType m_mutex;
     std::list<LogAppender::ptr> m_appenders;    //appender list
     LogFormatter::ptr m_formatter;              //formatter
 };
@@ -221,6 +228,7 @@ private:
 
 class LoggerManager {
 public:
+    using MutexType = SpinLock;    
     LoggerManager();
 
     Logger::ptr getLogger(const std::string& name);
@@ -232,8 +240,8 @@ public:
     std::string toYamlString();
 
 private:
+    MutexType m_mutex;
     Logger::ptr m_root;
-
     std::unordered_map<std::string, Logger::ptr> m_loggers;
 
 };
