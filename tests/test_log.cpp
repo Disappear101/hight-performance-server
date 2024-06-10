@@ -4,33 +4,33 @@
 #include <memory>
 
 int main(int argc, char** argv) {
-    sylar::Logger::ptr logger = std::make_shared<sylar::Logger>();
-    logger->addAppender(sylar::LogAppender::ptr(new sylar::StdoutLogAppender));
+    tao::Logger::ptr logger = std::make_shared<tao::Logger>();
+    logger->addAppender(tao::LogAppender::ptr(new tao::StdoutLogAppender));
 
-    sylar::FileLogAppender::ptr file_appender(new sylar::FileLogAppender("./log.txt"));
-    sylar::LogFormatter::ptr fmt(new sylar::LogFormatter("%d%T%p%T%m%n"));
+    tao::FileLogAppender::ptr file_appender(new tao::FileLogAppender("./log.txt"));
+    tao::LogFormatter::ptr fmt(new tao::LogFormatter("%d%T%p%T%m%n"));
     file_appender->setFormatter(fmt);
-    file_appender->setLevel(sylar::LogLevel::ERROR);
+    file_appender->setLevel(tao::LogLevel::ERROR);
 
     logger->addAppender(file_appender);
 
-    sylar::LogEvent::ptr event(new sylar::LogEvent(logger, sylar::LogLevel::DEBUG, __FILE__, __LINE__, 0, sylar::GetThreadId(), sylar::GetFiberId(), time(0), "thread0"));
-    event->getSS() << "hello sylar log";
-    logger->log(sylar::LogLevel::DEBUG, event);
-    std::cout << "hello sylar log" << std::endl;
+    tao::LogEvent::ptr event(new tao::LogEvent(logger, tao::LogLevel::DEBUG, __FILE__, __LINE__, 0, tao::GetThreadId(), tao::GetFiberId(), time(0), "thread0"));
+    event->getSS() << "hello tao log";
+    logger->log(tao::LogLevel::DEBUG, event);
+    std::cout << "hello tao log" << std::endl;
 
-    //logger->log(sylar::LogLevel::DEBUG, event);
+    //logger->log(tao::LogLevel::DEBUG, event);
 
-    SYLAR_LOG_INFO(logger) << "test macro";
-    SYLAR_LOG_ERROR(logger) << "test macro error";
+    TAO_LOG_INFO(logger) << "test macro";
+    TAO_LOG_ERROR(logger) << "test macro error";
 
-    sylar::sylar_fmt_log_print(logger, sylar::LogLevel::ERROR, "test fmt printed function in %s level case %d", "error", 1);
-    // SYLAR_LOG_FMT_ERROR(logger, "test macro fmt error %s", "aa");
+    tao::tao_fmt_log_print(logger, tao::LogLevel::ERROR, "test fmt printed function in %s level case %d", "error", 1);
+    // TAO_LOG_FMT_ERROR(logger, "test macro fmt error %s", "aa");
 
-    auto l = sylar::LoggerMgr::GetInstance()->getLogger("xx");
-    l->addAppender(sylar::LogAppender::ptr(new sylar::StdoutLogAppender));
-    SYLAR_LOG_DEBUG(l) << "xxx";
+    auto l = tao::LoggerMgr::GetInstance()->getLogger("xx");
+    l->addAppender(tao::LogAppender::ptr(new tao::StdoutLogAppender));
+    TAO_LOG_DEBUG(l) << "xxx";
 
-    SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "test SYLAR_LOG_ROOT!";
+    TAO_LOG_INFO(TAO_LOG_ROOT()) << "test TAO_LOG_ROOT!";
     return 0;
 }

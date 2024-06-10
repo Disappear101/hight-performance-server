@@ -1,9 +1,9 @@
-#ifndef __SYLAR_SINGLETON_H__
-#define __SYLAR_SINGLETON_H__
+#ifndef __TAO_SINGLETON_H__
+#define __TAO_SINGLETON_H__
 
 #include <memory>
 
-namespace sylar {
+namespace tao {
 template<class T, class X = void, int N = 0>
 class Singleton {
 public:

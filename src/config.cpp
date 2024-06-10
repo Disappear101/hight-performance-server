@@ -6,9 +6,10 @@
 //flatten the tree to
 //"A.B", 10
 //"A.C", str
-namespace sylar {
+namespace tao {
 
 ConfigVarBase::ptr Config::LookupBase(const std::string& name) {
+    RWMutexType::ReadLock lock(GetMutex());
     auto it = GetDatas().find(name);
     return it == GetDatas().end() ? nullptr : it->second;
 }
@@ -19,7 +20,7 @@ static void ListAllMember(const std::string& prefix,
                             std::list<std::pair<std::string, const YAML::Node> >& output) {
     if (prefix.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_") 
             != std::string::npos) {
-        SYLAR_LOG_ERROR(SYLAR_LOG_ROOT()) << "Config invalid name: " << prefix << " : " << node;
+        TAO_LOG_ERROR(TAO_LOG_ROOT()) << "Config invalid name: " << prefix << " : " << node;
     }
     output.push_back(std::make_pair(prefix, node));
     if (node.IsMap()) {
@@ -50,6 +51,16 @@ void Config::LoadFromYaml(const YAML::Node& root){
                 var->fromString(ss.str());
             }
         }
+    }
+}
+
+
+void Config::Visit(std::function<void(ConfigVarBase::ptr)> cb) {
+    RWMutexType::ReadLock lock(GetMutex());
+    ConfigVarMap& m = GetDatas();
+    for(auto it = m.begin();
+            it != m.end(); ++it) {
+        cb(it->second);
     }
 }
 

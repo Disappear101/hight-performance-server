@@ -1,5 +1,5 @@
-#ifndef _SYLAR_LOG_
-#define _SYLAR_LOG_
+#ifndef _TAO_LOG_H_
+#define _TAO_LOG_H_
 
 #include <iostream>
 #include <string>
@@ -12,29 +12,29 @@
 #include <vector>
 #include "util.h"
 #include "singleton.h"
-#include "thread.h"
+#include "mutex.h"
 
 //when exit if, LogEventWrap will deconstruct 
-#define SYLAR_LOG_LEVEL(logger, level) \
+#define TAO_LOG_LEVEL(logger, level) \
     if (logger->getLevel() <= level) \
-        sylar::LogEventWrap(std::make_shared<sylar::LogEvent>(logger, level, \
-                        __FILE__, __LINE__, 0, sylar::GetThreadId(), sylar::GetFiberId(), time(0), "thread0")).getSS()
+        tao::LogEventWrap(std::make_shared<tao::LogEvent>(logger, level, \
+                        __FILE__, __LINE__, 0, tao::GetThreadId(), tao::GetFiberId(), time(0), "thread0")).getSS()
 
-#define SYLAR_LOG_DEBUG(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::DEBUG)
+#define TAO_LOG_DEBUG(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::DEBUG)
 
-#define SYLAR_LOG_INFO(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::INFO)
+#define TAO_LOG_INFO(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::INFO)
 
-#define SYLAR_LOG_WARN(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::WARN)
+#define TAO_LOG_WARN(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::WARN)
 
-#define SYLAR_LOG_ERROR(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::ERROR)
+#define TAO_LOG_ERROR(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::ERROR)
 
-#define SYLAR_LOG_FATAL(logger) SYLAR_LOG_LEVEL(logger, sylar::LogLevel::FATAL)
+#define TAO_LOG_FATAL(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::FATAL)
 
-#define SYLAR_LOG_ROOT() sylar::LoggerMgr::GetInstance()->getRoot()
+#define TAO_LOG_ROOT() tao::LoggerMgr::GetInstance()->getRoot()
 
-#define SYLAR_LOG_NAME(name) sylar::LoggerMgr::GetInstance()->getLogger(name)
+#define TAO_LOG_NAME(name) tao::LoggerMgr::GetInstance()->getLogger(name)
 
-namespace sylar {
+namespace tao {
 
 class Logger;
 
@@ -162,7 +162,6 @@ protected:
     MutexType m_mutex;
 };
 
-
 class Logger : public std::enable_shared_from_this<Logger>{
 public:
     using ptr = std::shared_ptr<Logger>;
@@ -247,15 +246,15 @@ private:
 };
 
 template<typename... Args>
-inline void sylar_fmt_log_print(std::shared_ptr<Logger> logger, LogLevel::Level level, const char* fmt, Args... args) {
+inline void tao_fmt_log_print(std::shared_ptr<Logger> logger, LogLevel::Level level, const char* fmt, Args... args) {
     if (logger->getLevel() <= level) {
-        sylar::LogEventWrap(std::make_shared<sylar::LogEvent>(logger, level, 
+        tao::LogEventWrap(std::make_shared<tao::LogEvent>(logger, level, 
                         __FILE__, __LINE__, 0, GetThreadId(), GetFiberId(), 
                         time(0), "thread0")).getEvent()->format(fmt, std::forward<Args>(args)...);
     }
 }
 
-using LoggerMgr = sylar::Singleton<LoggerManager>;
+using LoggerMgr = tao::Singleton<LoggerManager>;
 
 };
 

@@ -4,7 +4,7 @@
 #include <set>
 #include <functional>
 
-namespace sylar {
+namespace tao {
 
 const char* LogLevel::ToString(LogLevel::Level level) {
     switch(level) {
@@ -150,7 +150,7 @@ public:
 class TabFormatItem : public LogFormatter::FormatItem {
 public:
     TabFormatItem(const std::string& str = std::string()) {}
-    void format(std::ostream& os, std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) override {
+    void format(std::ostream& os, std::shared_ptr<tao::Logger>logger, LogLevel::Level level, LogEvent::ptr event) override {
         os << "\t";
     }
 };
@@ -200,11 +200,9 @@ LogEvent::LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level
 
 LogFormatter::ptr LogAppender::getFormatter()
 {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     return m_formatter;
 }
-
-
 
 Logger::Logger(const std::string& name, LogLevel::Level level)
         :m_name(name)
@@ -214,15 +212,15 @@ Logger::Logger(const std::string& name, LogLevel::Level level)
 }
 
 void Logger::addAppender(LogAppender::ptr appender){
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     if (!appender->getFormatter()) {
-        //MutexType::Lock ll(appender->m_mutex);
+        MutexType::Lock ll(appender->m_mutex);
         appender->setFormatter(m_formatter);
     }
     m_appenders.push_back(appender);
 }
 void Logger::delAppender(LogAppender::ptr appender){
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     for (auto it = m_appenders.begin(); it != m_appenders.end(); ++it){
         if (*it == appender) {
             m_appenders.erase(it);
@@ -231,7 +229,7 @@ void Logger::delAppender(LogAppender::ptr appender){
 }
 
 void Logger::clearAppenders() {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     m_appenders.clear();
 }
 
@@ -242,7 +240,7 @@ void Logger::log(LogLevel::Level level, LogEvent::ptr event){
     }
     if (level >= m_level) {
         auto self = shared_from_this();
-        //MutexType::Lock lock(m_mutex);
+        MutexType::Lock lock(m_mutex);
         for (auto & i : m_appenders) {
             i->log(self, level, event);
         }
@@ -266,7 +264,7 @@ void Logger::fatal(LogEvent::ptr e){
 }
 
 std::string Logger::toYamlString() {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     YAML::Node node;
     node["name"] = m_name;
     if (m_level != LogLevel::UNKNOW) {
@@ -284,7 +282,7 @@ std::string Logger::toYamlString() {
 }
 
 void Logger::setFormatter(LogFormatter::ptr val) {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     m_formatter = val;
 
     if (m_appenders.empty()) {
@@ -293,7 +291,7 @@ void Logger::setFormatter(LogFormatter::ptr val) {
     }
 
     for(auto& i : m_appenders) {
-        //MutexType::Lock ll(i->m_mutex);
+        MutexType::Lock ll(i->m_mutex);
         if(!i->m_hasFormatter) {
             i->m_formatter = m_formatter;
         }
@@ -302,7 +300,7 @@ void Logger::setFormatter(LogFormatter::ptr val) {
 
 void Logger::setFormatter(const std::string& val) {
     std::cout << "add formatter: " << "---" << val << std::endl;
-    sylar::LogFormatter::ptr new_val(new sylar::LogFormatter(val));
+    tao::LogFormatter::ptr new_val(new tao::LogFormatter(val));
     if(new_val->isError()) {
         std::cout << "Logger setFormatter name=" << m_name
                   << " value=" << val << " invalid formatter"
@@ -314,7 +312,7 @@ void Logger::setFormatter(const std::string& val) {
 }
 
 LogFormatter::ptr Logger::getFormatter() {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     return m_formatter;
 }
 
@@ -330,7 +328,7 @@ void FileLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, 
             reopen();
             m_lastTime = now;
         }
-        //MutexType::Lock lock(m_mutex);
+        MutexType::Lock lock(m_mutex);
         if (!(m_filestream << m_formatter->format(logger, level, event))) {
             std::cout << "error" << std::endl;
         }
@@ -338,7 +336,7 @@ void FileLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, 
 }
 
 bool FileLogAppender::reopen(){
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     if (m_filestream) {
         m_filestream.close();
     }
@@ -348,7 +346,7 @@ bool FileLogAppender::reopen(){
 }
 
 std::string FileLogAppender::toYamlString() {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     YAML::Node node;
     node["type"] = "FileLogAppender";
     node["file"] = m_filename;
@@ -365,7 +363,7 @@ std::string FileLogAppender::toYamlString() {
 
 void StdoutLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, LogEvent::ptr event) {
     if (level >= m_level) {
-        //MutexType::Lock lock(m_mutex);
+        MutexType::Lock lock(m_mutex);
         std::cout << m_formatter->format(logger, level, event) << std::endl;
     }
 }
@@ -522,7 +520,7 @@ LoggerManager::LoggerManager() {
 }
 
 Logger::ptr LoggerManager::getLogger(const std::string& name) {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     auto it = m_loggers.find(name);
     if(it != m_loggers.end()) {
         return it->second;
@@ -671,18 +669,18 @@ ConfigVar<std::set<LogDefine> >::ptr g_log_defines =
 
 struct LogIniter {
     LogIniter() {
-        g_log_defines->addListener(0XF1E231, [](const std::set<LogDefine>& old_value, const std::set<LogDefine>& new_value){
-            SYLAR_LOG_INFO(SYLAR_LOG_ROOT()) << "on_logger_conf_changed";
+        g_log_defines->addListener([](const std::set<LogDefine>& old_value, const std::set<LogDefine>& new_value){
+            TAO_LOG_INFO(TAO_LOG_ROOT()) << "on_logger_conf_changed";
             for(auto& i : new_value) {
                 auto it = old_value.find(i);
-                sylar::Logger::ptr logger;
+                tao::Logger::ptr logger;
                 if(it == old_value.end()) {
                     //add logger
-                    logger = SYLAR_LOG_NAME(i.name);
+                    logger = TAO_LOG_NAME(i.name);
                 } else {
                     if(!(i == *it)) {
                         //modify logger
-                        logger = SYLAR_LOG_NAME(i.name);
+                        logger = TAO_LOG_NAME(i.name);
                     } else {
                         continue;
                     }
@@ -696,11 +694,11 @@ struct LogIniter {
 
                 logger->clearAppenders();
                 for(auto& a : i.appenders) {
-                    sylar::LogAppender::ptr ap;
+                    tao::LogAppender::ptr ap;
                     if(a.type == 1) {
                         ap.reset(new FileLogAppender(a.file));
                     } else if(a.type == 2) {
-                        //if(!sylar::EnvMgr::GetInstance()->has("d")) {
+                        //if(!tao::EnvMgr::GetInstance()->has("d")) {
                             ap.reset(new StdoutLogAppender);
                         // } else {
                         //     continue;
@@ -724,7 +722,7 @@ struct LogIniter {
                 auto it = new_value.find(i);
                 if(it == new_value.end()) {
                     //del logger(soft remove)
-                    auto logger = SYLAR_LOG_NAME(i.name);
+                    auto logger = TAO_LOG_NAME(i.name);
                     logger->setLevel((LogLevel::Level)0);
                     logger->clearAppenders();
                 }
@@ -737,7 +735,7 @@ struct LogIniter {
 static LogIniter __log_init;
 
 std::string LoggerManager::toYamlString() {
-    //MutexType::Lock lock(m_mutex);
+    MutexType::Lock lock(m_mutex);
     YAML::Node node;
     for(auto& i : m_loggers) {
         node.push_back(YAML::Load(i.second->toYamlString()));

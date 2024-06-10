@@ -1,6 +1,6 @@
 #include "util.h"
 
-namespace sylar {
+namespace tao {
 
 pid_t GetThreadId() {
     return syscall(SYS_gettid);

@@ -1,3 +1,6 @@
+#ifndef __TAO_UTIL_H__
+#define __TAO_UTIL_H__
+
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -7,7 +10,7 @@
 #include <vector>
 #include <string>
 
-namespace sylar {
+namespace tao {
 
 /**
  * @brief return current thread id
@@ -21,3 +24,5 @@ uint32_t GetFiberId();
 
 
 }
+
+#endif
