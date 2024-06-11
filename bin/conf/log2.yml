@@ -4,3 +4,9 @@ logs:
       appenders:
           - type: FileLogAppender
             file: threads_write.txt
+    - name: system
+      lavel: info
+      appenders:
+          - type: FileLogAppender
+            file: log_speed.txt
+          - type: StdoutLogAppender

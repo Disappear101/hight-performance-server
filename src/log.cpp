@@ -329,6 +329,13 @@ void FileLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, 
             m_lastTime = now;
         }
         MutexType::Lock lock(m_mutex);
+        if (!m_filestream.is_open()) std::cerr << "Failed to open file." << std::endl;
+        if (m_filestream.bad()) std::cerr << "I/O error while reading/writing to file." << std::endl;
+
+        if (m_filestream.fail()) std::cerr << "Logical error on I/O operation." << std::endl;
+
+        if (m_filestream.eof()) std::cerr << "End of file reached unexpectedly." << std::endl;
+
         if (!(m_filestream << m_formatter->format(logger, level, event))) {
             std::cout << "error" << std::endl;
         }
@@ -527,7 +534,8 @@ Logger::ptr LoggerManager::getLogger(const std::string& name) {
     }
 
     Logger::ptr logger = std::make_shared<Logger>(name);
-    //logger->m_root = m_root;
+    //add default appender
+    logger->addAppender(std::make_shared<StdoutLogAppender>());
     m_loggers[name] = logger;
     return logger;
 }
