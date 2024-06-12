@@ -13,12 +13,13 @@
 #include "util.h"
 #include "singleton.h"
 #include "mutex.h"
+#include "thread.h"
 
 //when exit if, LogEventWrap will deconstruct 
 #define TAO_LOG_LEVEL(logger, level) \
     if (logger->getLevel() <= level) \
         tao::LogEventWrap(std::make_shared<tao::LogEvent>(logger, level, \
-                        __FILE__, __LINE__, 0, tao::GetThreadId(), tao::GetFiberId(), time(0), "thread0")).getSS()
+                        __FILE__, __LINE__, 0, tao::GetThreadId(), tao::GetFiberId(), time(0), tao::Thread::GetName())).getSS()
 
 #define TAO_LOG_DEBUG(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::DEBUG)
 
@@ -250,7 +251,7 @@ inline void tao_fmt_log_print(std::shared_ptr<Logger> logger, LogLevel::Level le
     if (logger->getLevel() <= level) {
         tao::LogEventWrap(std::make_shared<tao::LogEvent>(logger, level, 
                         __FILE__, __LINE__, 0, GetThreadId(), GetFiberId(), 
-                        time(0), "thread0")).getEvent()->format(fmt, std::forward<Args>(args)...);
+                        time(0), tao::Thread::GetName())).getEvent()->format(fmt, std::forward<Args>(args)...);
     }
 }
 

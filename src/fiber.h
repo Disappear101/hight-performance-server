@@ -17,12 +17,12 @@ public:
     using ptr = std::shared_ptr<Fiber>;
 
     enum State {
-        INIT,
-        HOLD,
-        EXEC,
-        TERM,
-        READY,
-        EXCEPT
+        INIT,   //initial status
+        HOLD,   //hold and suspend status
+        EXEC,   //executing status
+        TERM,   //terminated status
+        READY,  //ready status
+        EXCEPT  //exception status
     };
 
 private:
@@ -35,6 +35,8 @@ public:
     //reset task cb without reallocat and free memory
     void reset(std::function<void()> cb);
 
+    void setState(State state) {m_state = state;}
+
     //Thread->main_fiber(scheduler) <---> sub_fiber
     
     //switches to current fiber and obtain executive right
@@ -42,6 +44,11 @@ public:
 
     //give up executive 
     void swapOut();
+
+    //obtain id of current executing fiber in current thread 
+    uint64_t getId() const { return m_id;}
+
+    State getState() const { return m_state; }
 
 public:
     //set current executing fiber 
@@ -54,6 +61,9 @@ public:
     static void YieldToHold();
     //total number if fibers
     static uint64_t nFibers();
+
+    //get
+    static uint64_t GetFiberId();
 
     static void MainFunc();
 private:

@@ -8,6 +8,7 @@ static Logger::ptr g_logger = TAO_LOG_NAME("system");
 static std::atomic<uint64_t> s_fiber_id {0};
 static std::atomic<uint64_t> s_fiber_count (0);
 
+//current executing fiber
 static thread_local Fiber* t_fiber = nullptr;
 //main fiber
 static thread_local Fiber::ptr t_thread_Fiber = nullptr;
@@ -56,6 +57,8 @@ Fiber::Fiber(std::function<void()> cb, size_t stacksize)
     m_ctx.uc_stack.ss_size = m_stacksize;
 
     makecontext(&m_ctx, &Fiber::MainFunc, 0);
+
+    TAO_LOG_DEBUG(g_logger) << "Fiber::Fiber id = " << m_id;
 }
 
 //constructor for sub fiber 
@@ -76,7 +79,9 @@ Fiber::~Fiber() {
             SetThis(nullptr);
         }
     }
+     TAO_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
 }
+
 
 void Fiber::reset(std::function<void()> cb) {
     TAO_ASSERT(m_stack);
@@ -98,9 +103,10 @@ void Fiber::reset(std::function<void()> cb) {
 
 void Fiber::swapIn() {
     SetThis(this);
-    TAO_ASSERT(m_state == EXEC);
+    TAO_ASSERT(m_state != EXEC);
     m_state = EXEC;
 
+    //switch with main fiber
     if (swapcontext(&t_thread_Fiber->m_ctx, &m_ctx)) {
         TAO_ASSERT2(false, "swapcontext");
     }
@@ -110,6 +116,7 @@ void Fiber::swapIn() {
 void Fiber::swapOut() { 
     SetThis(t_thread_Fiber.get());
 
+    //switch with main fiber
     if (swapcontext(&m_ctx, &t_thread_Fiber->m_ctx)) {
         TAO_ASSERT2(false, "swapcontext");
     }
@@ -124,9 +131,9 @@ Fiber::ptr Fiber::GetThis() {
         return t_fiber->shared_from_this();
     }
     //Fiber::ptr main_fiber = std::make_shared<Fiber>();
-    Fiber::ptr main_fiber(new Fiber);
+    Fiber::ptr main_fiber(new Fiber);//construct main fiber and set as executing fiber
     TAO_ASSERT(t_fiber == main_fiber.get());
-    t_thread_Fiber = main_fiber;
+    t_thread_Fiber = main_fiber;//set main fiber
     return t_fiber->shared_from_this();
 }
 
@@ -141,7 +148,7 @@ void Fiber::YieldToReady() {
 void Fiber::YieldToHold() {
     Fiber::ptr cur = GetThis();
     TAO_ASSERT(cur->m_state == EXEC);
-    //cur->m_state = HOLD;
+    cur->m_state = HOLD;
     cur->swapOut();
 }
     //total number if fibers
@@ -149,8 +156,15 @@ uint64_t Fiber::nFibers() {
     return s_fiber_count;
 }
 
+uint64_t Fiber::GetFiberId() {
+    if (t_fiber) {
+        return t_fiber->getId();
+    }
+    return 0;
+}
+
 void Fiber::MainFunc() {
-    Fiber::ptr cur = GetThis();
+    Fiber::ptr cur = GetThis();//share_pointer count ++
     TAO_ASSERT(cur);
     try {
         cur->m_cb();
@@ -163,5 +177,12 @@ void Fiber::MainFunc() {
         cur->m_state = EXCEPT;
         TAO_LOG_ERROR(g_logger) << "Fiber Except: ";
     }
+
+    //to solve incomplete destruction
+    auto raw_ptr = cur.get();
+    cur.reset();//share_pointer count --
+    raw_ptr->swapOut();
+
+    TAO_ASSERT2(false, "never reach");
 }
 }
