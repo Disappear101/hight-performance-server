@@ -42,7 +42,7 @@ class Logger;
 class LogLevel {
 public:
     enum Level {
-        UNKNOW = 0,
+        UNKNOW = 0, 
         DEBUG = 1,
         INFO = 2,
         WARN = 3,

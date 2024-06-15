@@ -8,11 +8,12 @@
 #include <string>
 #include <semaphore.h>
 #include "stdint.h"
+#include "noncopyable.h"
 #include "mutex.h"
 
 namespace tao {
 
-class Thread {
+class Thread : Noncopyable {
 public:
     using ptr = std::shared_ptr<Thread>;
     Thread(std::function<void()> cb, const std::string& name);
@@ -25,10 +26,10 @@ public:
     static Thread* GetThis();
     static const std::string& GetName();
     static void SetName(const std::string& name);
-private:
-    Thread(const Thread&) = delete;
-    Thread(const Thread&&) = delete;
-    //Thread& operator=(const Thread&) =  delete;
+// private:
+//     Thread(const Thread&) = delete;
+//     Thread(const Thread&&) = delete;
+//     //Thread& operator=(const Thread&) =  delete;
 
     static void* run(void* arg);
 private:

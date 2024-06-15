@@ -29,13 +29,14 @@ public:
     */
     static Scheduler* GetThis();
     /*
-    get main fiber used for Scheduling in a thread
+    get scheduler fiber used for Scheduling in a thread
     */
-    static Fiber* GetMainFiber();
+    static Fiber* GetSchedulerFiber();
 
     void start();
     void stop();
 
+    //specifying fiber or cb run in a thread
     template<class FiberOrCb>
     void schedule(FiberOrCb fc, int thread = -1) {
         bool need_tickle = false;
@@ -124,8 +125,8 @@ private:
 protected:
     std::vector<int> m_threadIds;
     size_t m_threadCount = 0;
-    size_t m_activeThreadCount = 0;
-    size_t m_idleThreadCount = 0;
+    std::atomic<size_t> m_activeThreadCount = {0};
+    std::atomic<size_t> m_idleThreadCount = 0;
     bool m_stopping = true;//
     bool m_autoStop = false;//subjecttively stop
     int m_rootThread = 0;//main thread 

@@ -8,7 +8,7 @@ static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
 //
 static thread_local Scheduler* t_scheduler = nullptr;
-static thread_local Fiber* t_fiber = nullptr;
+static thread_local Fiber* t_scheduler_fiber = nullptr;
 
 Scheduler::Scheduler(size_t nthd, bool use_caller, const std::string& name) 
     :m_name(name) {
@@ -23,10 +23,10 @@ Scheduler::Scheduler(size_t nthd, bool use_caller, const std::string& name)
         t_scheduler = this;
 
         //reset scheluler fiber of current thread
-        m_rootFiber.reset(new Fiber(std::bind(&Scheduler::run, this)));
+        m_rootFiber.reset(new Fiber(std::bind(&Scheduler::run, this), 0, true));
         tao::Thread::SetName(m_name);
 
-        t_fiber = m_rootFiber.get();
+        t_scheduler_fiber = m_rootFiber.get();
         m_rootThread = tao::GetThreadId();
         m_threadIds.push_back(m_rootThread);
     } else {
@@ -46,8 +46,8 @@ Scheduler* Scheduler::GetThis() {
     return t_scheduler;
 }
 
-Fiber* Scheduler::GetMainFiber() {
-    return t_fiber;
+Fiber* Scheduler::GetSchedulerFiber() {
+    return t_scheduler_fiber;
 }
 
 void Scheduler::start() {
@@ -65,6 +65,26 @@ void Scheduler::start() {
                                                             , m_name + "_" + std::to_string(i));
         m_threadIds.push_back(m_threads[i]->getId());
     }
+    lock.unlock();//unlock here, prevent deadlock from happening, because context switching will happen in call function
+
+    // for(size_t i = 0; i < m_threadCount; ++i) {
+    //     tickle();
+    // }
+
+    // if (m_rootFiber) {
+    //     if (!stopping()) m_rootFiber->call();
+    // }
+
+    // std::vector<Thread::ptr> thrs;
+    // {
+    //     MutexType::Lock lock(m_mutex);
+    //     thrs.swap(m_threads);
+    // }
+
+    // for(auto& i : thrs) {
+    //     i->join();
+    // }
+
 }
 void Scheduler::stop() {
     m_autoStop = true;
@@ -85,25 +105,42 @@ void Scheduler::stop() {
     }
 
     m_stopping = true;
+    //wake up all threads to finish execution
     for(size_t i = 0; i < m_threadCount; ++i) {
         tickle();
     }
-
+    //if use_caller, wake up caller thread to finish execution
     if(m_rootFiber) {
         tickle();
     }
 
+    if (m_rootFiber) {
+        if (!stopping()) {
+            m_rootFiber->call();//
+        }
+    }
+    
+    std::vector<Thread::ptr> thrs;
+    {
+        MutexType::Lock lock(m_mutex);
+        thrs.swap(m_threads);
+    }
+
+    for(auto& i : thrs) {
+        i->join();
+    }
 }
 
 void Scheduler::tickle() {
-
+    TAO_LOG_INFO(g_logger) << "tickle";
 }
+
 void Scheduler::run() {
     TAO_LOG_DEBUG(g_logger) << m_name << " run";
     setThis();
-    //when use_caller = false, initiate t_fiber
+    //when use_caller = false, initiate t_scheduler_fiber
     if (tao::GetThreadId() != m_rootThread) {
-        t_fiber = Fiber::GetThis().get();
+        t_scheduler_fiber = Fiber::GetThis().get();
     }
 
     //create an idle fiber and a cb fiber for cb task
@@ -176,7 +213,7 @@ void Scheduler::run() {
             } else if(cb_fiber->getState() == Fiber::EXCEPT
                     || cb_fiber->getState() == Fiber::TERM) {
                 cb_fiber->reset(nullptr);
-            } else {//if(cb_fiber->getState() != Fiber::TERM) {
+            } else {
                 cb_fiber->setState(Fiber::HOLD);
                 cb_fiber.reset();
             }
@@ -187,6 +224,7 @@ void Scheduler::run() {
             }
             if(idle_fiber->getState() == Fiber::TERM) {
                 TAO_LOG_INFO(g_logger) << "idle fiber term";
+                //idle_fiber.reset();
                 break;
             }
 
@@ -203,12 +241,16 @@ void Scheduler::run() {
 
 }
 bool Scheduler::stopping() {
-    
-    return false;
+    MutexType::Lock lock(m_mutex);
+    return m_stopping && m_autoStop 
+        && m_fibers.empty() && m_activeThreadCount == 0;
 }
 
 void Scheduler::idle() {
-
+    TAO_LOG_INFO(g_logger) << "idle";
+    while(!stopping()) {
+        tao::Fiber::YieldToHold();
+    }
 }
 
 void Scheduler::setThis() {

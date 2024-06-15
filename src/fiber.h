@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "mutex.h"
 #include "util.h"
-#include "macro.h"
+
 
 namespace tao {
 
@@ -29,7 +29,7 @@ private:
     Fiber();//disable default constructor
 
 public:
-    Fiber(std::function<void()> cb, size_t stacksize = 0);
+    Fiber(std::function<void()> cb, size_t stacksize = 0, bool use_caller = false);
     ~Fiber();
 
     //reset task cb without reallocat and free memory
@@ -39,16 +39,22 @@ public:
 
     //Thread->main_fiber(scheduler) <---> sub_fiber
     
-    //switches to current fiber and obtain executive right
+    //switches to current fiber and obtain executive right from scheduler fiber
     void swapIn();
 
-    //give up executive 
+    //return executive right back to schedulerfiber
     void swapOut();
 
     //obtain id of current executing fiber in current thread 
     uint64_t getId() const { return m_id;}
 
     State getState() const { return m_state; }
+
+    //Swicthes to current and obtain executive right from main fiber of current thead
+    void call();
+
+    //return executive right back to main fiber of current thread
+    void back();
 
 public:
     //set current executing fiber 
@@ -66,6 +72,8 @@ public:
     static uint64_t GetFiberId();
 
     static void MainFunc();
+
+    static void CallerMainFunc();
 private:
     uint64_t m_id = 0;
     uint32_t m_stacksize = 0;

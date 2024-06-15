@@ -205,24 +205,28 @@ private:
 };
 
 //atomic lock
-// class CASLock {
-// public:
-//     CASLock() {
-//         m_mutex.clear();
-//     }
-//     ~CASLock() {
+//Compare-And-Swap
+//implements a spinlock using atomic operations, ensuring thread safety by forcing other 
+//threads to spin-wait until the lock becomes available. This type of lock is very 
+//efficient for short critical sections where the wait time is expected to be minimal. 
+class CASLock {
+public:
+    CASLock() {
+        m_mutex.clear();
+    }
+    ~CASLock() {
 
-//     }
-//     void lock() {
-//         while (std::atomic_flag_test_and_set_explicit(&m_mutex, std::memory_order_acquire));
-//     }
-//     void unlock() {
-//         std::atomic_flag_clear_explicit(&m_mutex, std::memory_order_release);
-//     }
-// private:
-//     //atomic status
-//     volatile std::atomic_flag m_mutex;
-// };
+    }
+    void lock() {
+        while (std::atomic_flag_test_and_set_explicit(&m_mutex, std::memory_order_acquire));
+    }
+    void unlock() {
+        std::atomic_flag_clear_explicit(&m_mutex, std::memory_order_release);
+    }
+private:
+    //atomic status
+    volatile std::atomic_flag m_mutex;
+};
 
 }
 
