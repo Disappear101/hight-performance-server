@@ -2,6 +2,7 @@
 #define __TAO_IOMANAGER_H__
 
 #include "scheduler.h"
+#include <sys/epoll.h>
 
 namespace tao {
 
@@ -12,8 +13,8 @@ public:
 
     enum Event {
         NONE = 0x0,
-        READ = 0x1,
-        WRITE = 0x4
+        READ = 0x1,     //EPOLLOUT
+        WRITE = 0x4     //EPOLLIN
     };
 private:
     struct FdContext
@@ -26,7 +27,11 @@ private:
             std::function<void()>cb;    //event call back
         };
 
-        int fd;
+        EventContext& getContext(Event event);
+        void resetContext(EventContext& ctx);
+        void triggerEvent(Event event);
+
+        int fd = 0;
         EventContext read;      //read event
         EventContext write;     //write event
         Event m_events = NONE;  //fd of event
@@ -39,8 +44,12 @@ public:
 
     //1 success, 0, retry, -1 error
     int addEvent(int fd, Event e, std::function<void()> cb = nullptr);
+    //delete specified events
     bool delEvent(int fd, Event e);
+    //cancle specified events
     bool cancelEvent(int fd, Event e);
+    //cancle all events
+    bool cancleAll(int fd);
 
     static IOManager* GetThis();
 
@@ -48,10 +57,16 @@ protected:
     void tickle() override;
     bool stopping() override;
     void idle() override;
+    void contextResize(size_t sz);
     
 private:
     int m_epfd = 0;
-    
+    int m_tickleFds[2];//pipe
+
+    std::atomic<size_t> m_pendingEventCount = {0};
+    RWMutexType m_mutex;
+    std::vector<FdContext*> m_fdContexts;
+
 };
 }
 

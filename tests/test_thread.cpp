@@ -61,11 +61,27 @@ void measureLogSpeed(const std::string& filePath, int interval) {
     }
 }
 
-int main(int argc, char** argv) {
+void test_threads_addition() {
+   TAO_LOG_INFO(g_logger) << "thread test begin";
+    std::vector<tao::Thread::ptr> thrs;
+    for(int i = 0; i < 5; ++i) {
+        tao::Thread::ptr thr = std::make_shared<tao::Thread>(&func1, "name_" + std::to_string(i * 2));
+        thrs.push_back(thr);
+    }
+
+    for(size_t i = 0; i < thrs.size(); ++i) {
+        thrs[i]->join();
+    }
+
+    TAO_LOG_INFO(g_logger) << "thread test end";
+    TAO_LOG_INFO(g_logger) << "count = " << count;
+    return; 
+}
+
+void test_threads_write() {
     TAO_LOG_INFO(g_logger) << "thread test begin";
     YAML::Node root = YAML::LoadFile("/home/tao/projects/hight-performance-server/bin/conf/log2.yml");
     tao::Config::LoadFromYaml(root);
-    TAO_LOG_INFO(TAO_LOG_NAME("system")) << "A Test";
     std::vector<tao::Thread::ptr> thrs;
     // for(int i = 0; i < 5; ++i) {
     //     tao::Thread::ptr thr = std::make_shared<tao::Thread>(&func1, "name_" + std::to_string(i * 2));
@@ -92,5 +108,10 @@ int main(int argc, char** argv) {
 
     TAO_LOG_INFO(g_logger) << "thread test end";
     TAO_LOG_INFO(g_logger) << "count = " << count;
+    return;
+}
+
+int main(int argc, char** argv) {
+    test_threads_addition();
     return 0;
 }
