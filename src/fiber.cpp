@@ -118,7 +118,6 @@ void Fiber::swapIn() {
     }
 }
 
-    //give up executive 
 void Fiber::swapOut() { 
     SetThis(Scheduler::GetSchedulerFiber());
 

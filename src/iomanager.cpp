@@ -28,7 +28,7 @@ void IOManager::FdContext::resetContext(EventContext& ctx) {
 }
 void IOManager::FdContext::triggerEvent(IOManager::Event event) {
     TAO_ASSERT(m_events & event);
-    m_events = (Event) (m_events & !event);
+    m_events = (Event) (m_events & ~event);//del event
     EventContext& ctx = getContext(event);
     if(ctx.cb) {
         ctx.scheduler->schedule(&ctx.cb);
@@ -135,6 +135,7 @@ bool IOManager::delEvent(int fd, Event e) {
     FdContext::MutexType::Lock lock2(fd_ctx->mutex);
     if (!(fd_ctx->m_events & e)) {//if fd doesn't exist
         return false;
+
     }
 
     Event new_events = (Event) (fd_ctx->m_events & ~e);//del events from e and remain orginal events
@@ -166,11 +167,11 @@ bool IOManager::cancelEvent(int fd, Event e) {
     lock.unlock();
 
     FdContext::MutexType::Lock lock2(fd_ctx->mutex);
-    if (!(fd_ctx->m_events & e)) {//if fd doesn't exist
+    if (!(fd_ctx->m_events & e)) {//if fd_ctx has no events to be canceled
         return false;
     }
 
-    Event new_events = (Event) (fd_ctx->m_events & ~e);//del events from e and remain orginal events
+    Event new_events = (Event) (fd_ctx->m_events & ~e);//del specified events
     int op = new_events ? EPOLL_CTL_MOD : EPOLL_CTL_DEL;
     epoll_event epevent;
     epevent.events = EPOLLET | new_events;
@@ -241,9 +242,15 @@ void IOManager::tickle() {
 }
 
 bool IOManager::stopping() {
+    uint64_t timeout = 0;
+    return stopping(timeout);
+}
 
-    return Scheduler::stopping()
-        && m_pendingEventCount == 0;
+bool IOManager::stopping(uint64_t timeout) {
+    timeout = getNextTimer();
+    return timeout == ~0ull
+        && m_pendingEventCount == 0
+        && Scheduler::stopping();
 }
 
 void IOManager::idle() {
@@ -253,11 +260,11 @@ void IOManager::idle() {
     std::shared_ptr<epoll_event> epevents(events,
         [](epoll_event* p) {
             delete[] p;
-            //std::cout << "Custom array deleter called\n";
         });
 
     while (true) {
-        if (stopping()) {
+        uint64_t next_timeout = 0;
+        if (stopping(next_timeout)) {
             TAO_LOG_INFO(g_logger) << "name = " << getName()
                             << " idle stopping exit";
             break;  
@@ -265,8 +272,14 @@ void IOManager::idle() {
 
         int rt = 0;
         do {
-            static const int MAX_TIMEOUT = 5000;
-            rt = epoll_wait(m_epfd, events, MAX_EVNETS, MAX_TIMEOUT);
+            static const int MAX_TIMEOUT = 3000;
+            if(next_timeout != ~0ull) {
+                next_timeout = (int)next_timeout > MAX_TIMEOUT
+                                ? MAX_TIMEOUT : next_timeout;
+            } else {
+                next_timeout = MAX_TIMEOUT;
+            }
+            rt = epoll_wait(m_epfd, events, MAX_EVNETS, (int)next_timeout);
 
             if (rt < 0 && errno == EINTR) {//errno == EINTR means that os interrupt before data arrival. try agin
 
@@ -275,12 +288,20 @@ void IOManager::idle() {
             }   
         } while (true);
 
+        std::vector<std::function<void()> > cbs;
+        listExpiredCb(cbs);
+        if(!cbs.empty()) {
+            schedule(cbs.begin(), cbs.end());
+            cbs.clear();
+        }
+
         //handle active events
         for (int i = 0; i < rt; ++i) {
             epoll_event& event = events[i];
             if (event.data.fd == m_tickleFds[0]) {
-                uint8_t dummy[256];
+                char dummy[256];
                 while (read(m_tickleFds[0], dummy, sizeof(dummy)) > 0);//Clear the pipe. Level trigger, use while to read all
+                //TAO_LOG_INFO(g_logger) << "pipe read = " << std::string(dummy);
                 continue;
             }
             FdContext* fd_ctx = (FdContext*)event.data.ptr;
@@ -300,7 +321,7 @@ void IOManager::idle() {
                 continue;
             }
 
-            int left_events = (fd_ctx->m_events & ~real_events);//del real events
+            int left_events = (fd_ctx->m_events & ~real_events);//after handle it, del events
             int op = left_events ? EPOLL_CTL_MOD : EPOLL_CTL_DEL;
             event.events = EPOLLET | left_events;
 
@@ -326,6 +347,10 @@ void IOManager::idle() {
 
         raw_ptr->swapOut();//switch to scheduler fiber. jump out idle to task fiber
     }
+}
+
+void IOManager::onTimerInsertedAtFront() {
+    tickle();//wake up epoll_wait
 }
 
 void IOManager::contextResize(size_t sz) {

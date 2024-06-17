@@ -2,11 +2,12 @@
 #define __TAO_IOMANAGER_H__
 
 #include "scheduler.h"
+#include "timer.h"
 #include <sys/epoll.h>
 
 namespace tao {
 
-class IOManager : public Scheduler {
+class IOManager : public Scheduler , public TimerManager {
 public:
     using ptr = std::shared_ptr<IOManager>;
     using RWMutexType = RWMutex;
@@ -22,7 +23,7 @@ private:
         using MutexType = Mutex;
         struct EventContext
         {
-            Scheduler* scheduler;       //event handler scheduler
+            Scheduler* scheduler = nullptr;       //event handler scheduler
             Fiber::ptr fiber;           //event fiber
             std::function<void()>cb;    //event call back
         };
@@ -59,6 +60,9 @@ protected:
     void idle() override;
     void contextResize(size_t sz);
     
+    void onTimerInsertedAtFront() override;
+
+    bool stopping(uint64_t timeout);
 private:
     int m_epfd = 0;
     int m_tickleFds[2];//pipe

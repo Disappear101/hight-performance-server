@@ -118,7 +118,7 @@ private:
     };
     
 private:
-    MutexType m_mutex;
+    MutexType m_mutex;  
     std::vector<Thread::ptr> m_threads;
     std::list<FiberAndThread> m_fibers;
     Fiber::ptr m_rootFiber;//scheduler fiber of thread

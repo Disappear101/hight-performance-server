@@ -32,7 +32,7 @@ void test_fiber() {
         });
         tao::IOManager::GetThis()->addEvent(sock, tao::IOManager::WRITE, [](){
             TAO_LOG_INFO(g_logger) << "write callback";
-            tao::IOManager::GetThis()->cancelEvent(sock, tao::IOManager::WRITE);
+            tao::IOManager::GetThis()->cancelEvent(sock, tao::IOManager::READ);
             close(sock);
         });
     } else {
@@ -41,11 +41,26 @@ void test_fiber() {
 }
 
 void test1() {
-    tao::IOManager iom;
+    tao::IOManager iom(2, true);
     iom.schedule(&test_fiber);
 }
 
+tao::Timer::ptr s_timer;
+void test_timer() {
+    tao::IOManager iom(2);
+
+    s_timer = iom.addTimer(1000, [](){
+        static int i = 0;
+        TAO_LOG_INFO(g_logger) << "hello timer i=" << i;
+        if (++i == 3) {
+            //timer->cancle();
+            s_timer->reset(2000, true);
+        }
+    }, true);
+}
+
 int main(int argc, char** argv) {
-    test1();
+    //test1();
+    test_timer();
     return 0;
 }
