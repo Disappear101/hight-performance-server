@@ -264,7 +264,7 @@ void IOManager::idle() {
 
     while (true) {
         uint64_t next_timeout = 0;
-        if (stopping(next_timeout)) {
+        if (stopping(next_timeout)) {//get next time out
             TAO_LOG_INFO(g_logger) << "name = " << getName()
                             << " idle stopping exit";
             break;  
@@ -291,7 +291,7 @@ void IOManager::idle() {
         std::vector<std::function<void()> > cbs;
         listExpiredCb(cbs);
         if(!cbs.empty()) {
-            schedule(cbs.begin(), cbs.end());
+            schedule(cbs.begin(), cbs.end());//schedule expired timer cb
             cbs.clear();
         }
 
@@ -349,6 +349,7 @@ void IOManager::idle() {
     }
 }
 
+//if insertion position is at front, wake up epoll_wait to handle expired timer cb
 void IOManager::onTimerInsertedAtFront() {
     tickle();//wake up epoll_wait
 }

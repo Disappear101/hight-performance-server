@@ -36,7 +36,7 @@ Timer::Timer(uint64_t next)
 
 }
 
-bool Timer::cancle() {
+bool Timer::cancel() {
     TimerManager::RWMutexType::WriteLock lock(m_manager->m_mutex);
     if (m_cb) {
         m_cb = nullptr;
@@ -116,7 +116,7 @@ Timer::ptr TimerManager::addTimer(uint64_t ms, std::function<void()>cb
 }
 
 static void OnTimer(std::weak_ptr<void>weak_cond, std::function<void()>cb) {
-    std::shared_ptr<void> tmp = weak_cond.lock();//if weak_cond has not been free
+    std::shared_ptr<void> tmp = weak_cond.lock();//use lock method to get a shared_pointer. if the shared_pointer has been released, return nullptr
     if (tmp) {
         cb();
     }

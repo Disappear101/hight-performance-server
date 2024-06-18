@@ -1,6 +1,7 @@
 #include "scheduler.h"
 #include "log.h"
 #include "macro.h"
+#include "hook.h"
 
 namespace tao {
 
@@ -137,6 +138,7 @@ void Scheduler::tickle() {
 
 void Scheduler::run() {
     TAO_LOG_DEBUG(g_logger) << m_name << " run";
+    set_hook_enable(true);
     setThis();
     //when use_caller = false, initiate t_scheduler_fiber
     if (tao::GetThreadId() != m_rootThread) {

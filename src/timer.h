@@ -18,8 +18,10 @@ public:
 
     Timer(uint64_t next);
 
-    bool cancle();
+    //erase timer from timer set 
+    bool cancel();
     
+    //re insert into timer set with now being start time
     bool refesh();
 
     /*
@@ -38,7 +40,8 @@ private:
     uint64_t m_next = 0;            //excecuting time stamp
     std::function<void()> m_cb;
     TimerManager* m_manager = nullptr;
-private:
+private:   
+    //used for sorting of timer set 
     struct Comparator 
     {
         bool operator()(const Timer::ptr& l, const Timer::ptr& r) const;

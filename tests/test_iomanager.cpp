@@ -53,7 +53,7 @@ void test_timer() {
         static int i = 0;
         TAO_LOG_INFO(g_logger) << "hello timer i=" << i;
         if (++i == 3) {
-            //timer->cancle();
+            //timer->cancel();
             s_timer->reset(2000, true);
         }
     }, true);
