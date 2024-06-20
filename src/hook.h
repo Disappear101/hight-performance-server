@@ -86,6 +86,8 @@ extern fcntl_fun fcntl_f;
 typedef int (*ioctl_fun)(int d, unsigned long int request, ...);
 extern ioctl_fun ioctl_f;
 
+extern int connect_with_timeout(int fd, const struct sockaddr* addr, socklen_t addrlen, uint64_t timeout_ms);
+
 }
 
 
