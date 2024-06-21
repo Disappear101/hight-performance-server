@@ -17,6 +17,8 @@ find_library(PTHREAD pthread)
 
 set(LIB_SRC
     src/address.cpp
+    src/bytearray.cpp
+    src/socket.cpp
     src/log.cpp
     src/util.cpp
     src/config.cpp
@@ -70,6 +72,14 @@ target_link_libraries(test_iomanager ${LIB_LIB})
 add_executable(test_hook tests/test_hook.cpp)
 add_dependencies(test_hook tao)
 target_link_libraries(test_hook ${LIB_LIB})
+
+add_executable(test_address tests/test_address.cpp)
+add_dependencies(test_address tao)
+target_link_libraries(test_address ${LIB_LIB})
+
+add_executable(test_socket tests/test_socket.cpp)
+add_dependencies(test_socket tao)
+target_link_libraries(test_socket ${LIB_LIB})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
