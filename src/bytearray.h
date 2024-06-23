@@ -4,6 +4,9 @@
 #include <memory>
 #include <string>
 #include <stdint.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <vector>
 
 namespace tao {
 
@@ -24,6 +27,14 @@ public:
 
     ByteArray(size_t base_size = 4096);
     ~ByteArray();
+
+    //get size of single memory block
+    int getBaseSize() const { return m_baseSize;}
+    //get readable size of entire memory pool
+    size_t getReadableSize() const { return m_size - m_position;};
+
+
+    size_t getSize() const { return m_size;}
 
     /*------------------------write-------------------------*/
     //fixed length interger
@@ -105,14 +116,18 @@ public:
     std::string toString() const;
     std::string toHexString() const;
 
+    //get readable buffers and store as iovec
+    uint64_t getReadableBuffers(std::vector<iovec>& buffers, uint64_t len = ~0ull) const;
+
+    //get readable buffers from specified position and store as iovec
+    uint64_t getReadableBuffers(std::vector<iovec>& buffers, uint64_t len, uint64_t position) const;
+
+    //get writable buffers and store as iovec
+    uint64_t getWritableBuffers(std::vector<iovec>& buffers, uint64_t len);
 private:
     void addCapacity(size_t size);
     //get current available memory
     size_t getCapacity() {return m_capacity - m_position;};
-    //get size of single memory block
-    int getBaseSize() const { return m_baseSize;}
-    //get readable size of entire memory pool
-    size_t getReadableSize() const { return m_size - m_position;};
 private:
     size_t m_baseSize;  //size of single memory block
     size_t m_position;  //global current operating positiom across memory blocks
