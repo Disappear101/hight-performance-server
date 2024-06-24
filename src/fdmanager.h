@@ -37,7 +37,7 @@ private:
     bool m_sysNonblock = true;
     bool m_userNonblock = true;
     bool m_isClosed = true;
-    bool m_fd;
+    int m_fd;
     uint64_t m_recvTimeout;
     uint64_t m_sendTimeout;
     tao::IOManager* m_iomanager;

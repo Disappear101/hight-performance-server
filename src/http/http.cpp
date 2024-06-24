@@ -178,11 +178,14 @@ std::ostream &HttpRequest::dump(std::ostream &os) const
     }
     return os;
 }
+std::string HttpRequest::toString() const
+{
+    std::stringstream ss;
+    dump(ss);
+    return ss.str();
+}
 HttpResponse::HttpResponse(uint8_t version, bool close)
-    :m_status(HttpStatus::OK)
-    ,m_version(version)
-    ,m_close(close)
-    ,m_isWebSocket(false)
+    : m_status(HttpStatus::OK), m_version(version), m_close(close), m_isWebSocket(false)
 {
 }
 std::string HttpResponse::getHeader(const std::string &key, const std::string &def) const
@@ -237,6 +240,12 @@ std::ostream &HttpResponse::dump(std::ostream &os) const
         os << "\r\n";
     }
     return os;
+}
+std::string HttpResponse::toString() const
+{
+    std::stringstream ss;
+    dump(ss);
+    return ss.str();
 }
 }
 }

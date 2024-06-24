@@ -145,6 +145,12 @@ uint64_t TimerManager::getNextTimer() {
 
 void TimerManager::listExpiredCb(std::vector<std::function<void()>>&cbs) {
     uint64_t now_ms = tao::GetCurrnetMS();
+    {
+        RWMutexType::ReadLock lock(m_mutex);
+        if(m_timers.empty()) {
+            return;
+        }
+    }
     if (now_ms < (*m_timers.begin())->m_next) {
         return;
     }

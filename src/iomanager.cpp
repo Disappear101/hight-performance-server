@@ -246,7 +246,7 @@ bool IOManager::stopping() {
     return stopping(timeout);
 }
 
-bool IOManager::stopping(uint64_t timeout) {
+bool IOManager::stopping(uint64_t& timeout) {
     timeout = getNextTimer();
     return timeout == ~0ull
         && m_pendingEventCount == 0
@@ -269,7 +269,7 @@ void IOManager::idle() {
                             << " idle stopping exit";
             break;  
         }
-
+        //TAO_LOG_DEBUG(g_logger) << "==========";
         int rt = 0;
         do {
             static const int MAX_TIMEOUT = 3000;

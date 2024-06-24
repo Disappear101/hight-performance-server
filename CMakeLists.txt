@@ -18,6 +18,10 @@ find_library(PTHREAD pthread)
 set(LIB_SRC
     src/address.cpp
     src/bytearray.cpp
+    src/http/http.cpp
+    src/http/http_parser.rl.cpp
+    src/http/httpclient_parser.rl.cpp
+    src/http/http_parser.cpp
     src/socket.cpp
     src/log.cpp
     src/util.cpp
@@ -26,6 +30,7 @@ set(LIB_SRC
     src/thread.cpp
     src/fiber.cpp
     src/scheduler.cpp
+    src/tcpserver.cpp
     src/timer.cpp
     src/fdmanager.cpp
     src/iomanager.cpp
@@ -80,6 +85,26 @@ target_link_libraries(test_address ${LIB_LIB})
 add_executable(test_socket tests/test_socket.cpp)
 add_dependencies(test_socket tao)
 target_link_libraries(test_socket ${LIB_LIB})
+
+add_executable(test_bytearray tests/test_bytearray.cpp)
+add_dependencies(test_bytearray tao)
+target_link_libraries(test_bytearray ${LIB_LIB})
+
+add_executable(test_http tests/test_http.cpp)
+add_dependencies(test_http tao)
+target_link_libraries(test_http ${LIB_LIB})
+
+add_executable(test_http_parser tests/test_http_parser.cpp)
+add_dependencies(test_http_parser tao)
+target_link_libraries(test_http_parser ${LIB_LIB})
+
+add_executable(test_tcpserver tests/test_tcpserver.cpp)
+add_dependencies(test_tcpserver tao)
+target_link_libraries(test_tcpserver ${LIB_LIB})
+
+add_executable(test_fdmanager tests/test_fdmanager.cpp)
+add_dependencies(test_fdmanager tao)
+target_link_libraries(test_fdmanager ${LIB_LIB})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

@@ -62,7 +62,7 @@ protected:
     
     void onTimerInsertedAtFront() override;
 
-    bool stopping(uint64_t timeout);
+    bool stopping(uint64_t& timeout);
 private:
     int m_epfd = 0;
     int m_tickleFds[2];//pipe
