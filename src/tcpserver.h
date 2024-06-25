@@ -38,7 +38,7 @@ protected:
 private:
     std::vector<Socket::ptr> m_socks;       //sockets connected to server
     IOManager* m_worker;                    //(N thread : M fiber)handle io events
-    IOManager* m_acceptWorker;
+    IOManager* m_acceptWorker;              //accept worker
     uint64_t m_readTimeout;                 //didn't receive message for a long time 
     std::string m_name;                     //name
     bool m_isStop;

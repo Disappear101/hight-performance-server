@@ -1,0 +1,35 @@
+#ifndef __TAO_SOCKET_STREAM_H__
+#define __TAO_SOCKET_STREAM_H__
+
+#include "../stream.h"
+#include "../socket.h"
+#include "../mutex.h"
+#include "../iomanager.h"
+
+namespace tao {
+class SocketStream : public Stream {
+public:
+    using ptr = std::shared_ptr<Socket::ptr>;
+
+    /**
+     * owner: if true, current class maintain life time*/
+    SocketStream(Socket::ptr sock, bool owner = true);
+    ~SocketStream();
+
+    bool isConnected() const;
+
+    virtual int read(void* buffer, size_t length) override;
+    virtual int read(ByteArray::ptr ba, size_t length) override;
+    virtual int write(const void* buffer, size_t length) override;
+    virtual int write(ByteArray::ptr ba, size_t length) override;
+    virtual bool close() override;
+
+
+private:
+    Socket::ptr m_sock;
+    bool m_owner;
+};
+
+}
+
+#endif

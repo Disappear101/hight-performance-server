@@ -22,7 +22,11 @@ set(LIB_SRC
     src/http/http_parser.rl.cpp
     src/http/httpclient_parser.rl.cpp
     src/http/http_parser.cpp
+    src/http/http_session.cpp
+    src/http/http_server.cpp
     src/socket.cpp
+    src/streams/socket_stream.cpp
+    src/stream.cpp
     src/log.cpp
     src/util.cpp
     src/config.cpp
@@ -105,6 +109,14 @@ target_link_libraries(test_tcpserver ${LIB_LIB})
 add_executable(test_fdmanager tests/test_fdmanager.cpp)
 add_dependencies(test_fdmanager tao)
 target_link_libraries(test_fdmanager ${LIB_LIB})
+
+add_executable(test_http_server tests/test_http_server.cpp)
+add_dependencies(test_http_server tao)
+target_link_libraries(test_http_server ${LIB_LIB})
+
+add_executable(echo_server examples/echo_server.cpp)
+add_dependencies(echo_server tao)
+target_link_libraries(echo_server ${LIB_LIB})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

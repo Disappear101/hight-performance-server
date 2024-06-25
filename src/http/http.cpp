@@ -52,6 +52,7 @@ const char *HttpStatusToString(const HttpStatus &s)
         return "<Unknown>";
     }
 }
+
 bool CaseInsensitiveLess::operator()(const std::string &l, const std::string &r) const
 {
     return strcasecmp(l.c_str(), r.c_str()) < 0;
@@ -184,6 +185,17 @@ std::string HttpRequest::toString() const
     dump(ss);
     return ss.str();
 }
+void HttpRequest::init()
+{
+    std::string conn = getHeader("connection");
+    if(!conn.empty()) {
+        if(strcasecmp(conn.c_str(), "keep-alive") == 0) {
+            m_close = false;
+        } else {
+            m_close = true;
+        }
+    }
+}
 HttpResponse::HttpResponse(uint8_t version, bool close)
     : m_status(HttpStatus::OK), m_version(version), m_close(close), m_isWebSocket(false)
 {
@@ -247,5 +259,15 @@ std::string HttpResponse::toString() const
     dump(ss);
     return ss.str();
 }
+
+std::ostream &operator<<(std::ostream &os, const HttpRequest &req)
+{
+    return req.dump(os);
+}
+std::ostream &operator<<(std::ostream &os, const HttpResponse &rsp)
+{
+    return rsp.dump(os);
+}
+
 }
 }

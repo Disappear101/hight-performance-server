@@ -307,6 +307,8 @@ public:
 
     std::string toString() const;
 
+    void init();
+
 private:
     HttpMethod m_method;
 
@@ -406,6 +408,10 @@ private:
     std::vector<std::string> m_cookies;
 };
 
+std::ostream& operator<<(std::ostream& os, const HttpRequest& req);
+
+
+std::ostream& operator<<(std::ostream& os, const HttpResponse& rsp);
 }
 
 }

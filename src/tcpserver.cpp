@@ -77,11 +77,11 @@ bool TcpServer::stop()
 {
     return false;
 }
-void TcpServer::handleClient(Socket::ptr client)
+void TcpServer::handleClient(tao::Socket::ptr client)
 {
     TAO_LOG_INFO(g_logger) << "handleClient: " << *client;
 }
-void TcpServer::startAccept(Socket::ptr sock)
+void TcpServer::startAccept(tao::Socket::ptr sock)
 {
     while (!m_isStop) {
         Socket::ptr client = sock->accept();

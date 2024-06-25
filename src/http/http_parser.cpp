@@ -72,6 +72,8 @@ void on_request_method(void *data, const char *at, size_t length) {
     parser->getData()->setMethod(m);
 }
 
+static _RequestSizeIniter _init;
+
 void on_request_uri(void *data, const char *at, size_t length) {
 
 }
