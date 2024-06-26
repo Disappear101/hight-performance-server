@@ -6,10 +6,10 @@ tao::Logger::ptr g_logger = TAO_LOG_ROOT();
 
 void run() {
     auto addr = tao::Address::LookupAny("0.0.0.0:8033");
-    auto addr2 = tao::UnixAddress::ptr(new tao::UnixAddress("/tmp/unix_addr2"));
+    //auto addr2 = tao::UnixAddress::ptr(new tao::UnixAddress("/tmp/unix_addr2"));
     std::vector<tao::Address::ptr> addrs;
     addrs.push_back(addr);
-    addrs.push_back(addr2);
+    //addrs.push_back(addr2);
 
     tao::TcpServer::ptr tcp_server(new tao::TcpServer);
     std::vector<tao::Address::ptr> fails;

@@ -14,7 +14,8 @@ HttpRequest::ptr HttpSession::recvRequest()
 {
     HttpRequestParser::ptr parser = std::make_shared<HttpRequestParser>();
 
-    uint64_t buff_size = HttpRequestParser::GetHttpRequestBufferSize();
+    //uint64_t buff_size = HttpRequestParser::GetHttpRequestBufferSize();
+    uint64_t buff_size = 150;
     std::shared_ptr<char> buffer(
             new char[buff_size], [](char* ptr){
                 delete[] ptr;

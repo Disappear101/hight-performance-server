@@ -32,8 +32,8 @@ public:
     bool isStop() const { return m_isStop;};
 
 protected:
-    virtual void handleClient(Socket::ptr client);
-    virtual void startAccept(Socket::ptr sock);
+    virtual void handleClient(tao::Socket::ptr client);
+    virtual void startAccept(tao::Socket::ptr sock);
 
 private:
     std::vector<Socket::ptr> m_socks;       //sockets connected to server
