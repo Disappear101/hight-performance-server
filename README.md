@@ -27,7 +27,10 @@
     };
    ```
 * **Support stdout stream and file stream**
+* ***Class Diagram*
+ ![log system class diagram](https://github.com/Disappear101/hight-performance-server/assets/105203326/9d4a4e1e-837a-4a6b-95e4-6946495ee0d0)
 
+* 
 
 ## 2. Configure Modular
 
