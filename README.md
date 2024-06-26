@@ -115,9 +115,10 @@ Utilizes a semaphore to ensure proper thread initialization before proceeding.
 
 | Mutex Type | write speed | CPU usage |
 |----------|----------|----------|
-| Row 1, Col 1 | Row 1, Col 2 | Row 1, Col 3 |
-| Row 2, Col 1 | Row 2, Col 2 | Row 2, Col 3 |
-| Row 3, Col 1 | Row 3, Col 2 | Row 3, Col 3 |
+| NonMutex | 20 M/s | high |
+| Mutex | 5.5 M/s | low |
+| Spinlock | 7 M/s | high |
+| CASlock | 8 M/s | high |
 
 ## 4. Coroutines
 
