@@ -49,6 +49,48 @@ key features:
 * **Thread Safety**:
  The use of customized RWMutexType ensures thread-safe operations on configuration data.
 
+Therefore, it can handle different data type, customized struct, container and Nested containers. 
+For example:
+```
+system:
+    int_vec: [10, 20, 100, 80]
+    int_list: [10, 20, 70]
+    int_set: [10, 20, 40]
+    str_int_map:
+        k: 20
+        h: 50
+        z: 80
+class:
+    person:
+        name: Tom
+        age: 52
+        sex: true
+    map:
+        Sachin:
+            name: Sachin
+            age: 18
+            sex: true
+        Yahya:
+            name: Yahya
+            age: 16
+            sex: true
+    vec_map:
+        farmer:
+            - name: Jacky
+              age: 33
+              sex: true
+            - name: Jacy
+              age: 25
+              sex: false
+        Bauer:
+            - name: b1
+              age: 29
+              sex: true
+            - name: b2
+              age: 31
+              sex: false
+```
+
 ## 3. Thread and Mutex
 
 ## 4. Coroutines
