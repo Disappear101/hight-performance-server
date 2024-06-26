@@ -138,6 +138,11 @@ First of all, fiber has following different states.
 * **READY**: The fiber is ready to run but is not currently executing. It is waiting to be scheduled.
 * **EXCEPT**: The fiber has encountered an exception during execution.
 
+![fiber state machine](https://github.com/Disappear101/hight-performance-server/assets/105203326/55ca3b3f-b63c-4405-bf5a-6d2f83d55e43)
+
+The lifecycle of a fiber is illustrated by the fiber state machine diagram. A fiber starts in the INIT (initialization) state and transitions to EXEC (executing) via the swap in action. During execution, it can yield to hold, moving to the HOLD (paused) state. The fiber is able to be resumed and transitions back to the EXEC state from the HOLD state. Upon completion, the fiber performs the terminate action to move to TERM (terminated). If an exception occurs during execution, it transitions to EXCEPT (exception) with the catch exception action and eventually swap out to exit(end of lifecycle). User can also yield to READY state from TERM or EXCEPT, so that the ready fiber can be scheduled, a fiber transitions back to EXEC from READY. These transitions and actions ensure organized scheduling, execution, and exception handling within fiber-based concurrency systems.
+
+
 
 
 ## 5. Fiber Scheduler
