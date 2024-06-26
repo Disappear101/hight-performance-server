@@ -121,6 +121,7 @@ The experiment measured the write speed and CPU usage of different types of mute
 | Mutex | 5.5 M/s | low |
 | Spinlock | 7 M/s | high |
 | CASlock | 8 M/s | high |
+
 The experiment shows that while NonMutex provides the highest write speed at the cost of high CPU usage and thread safety, 
 Mutex offers lower write speed with efficient CPU usage, whereas Spinlock and CASlock offer moderate write speeds with high CPU usage, suitable for short critical sections.
 
