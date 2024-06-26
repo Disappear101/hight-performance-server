@@ -113,7 +113,7 @@ Thread class offers a robust implementation for managing threads in a C++ applic
 It encapsulates the details of thread creation, management, worker function, and synchronization, providing a higher-level interface for multithreading.
 Utilizes a semaphore to ensure proper thread initialization before proceeding.
 
-For test case: two threads write a file at the same time by using different locks.
+For the test case: two threads write a file at the same time by using different locks.
 The experiment measured the write speed and CPU usage of different types of mutexes used for thread synchronization. 
 | Mutex Type | write speed | CPU usage |
 |----------|----------|----------|
