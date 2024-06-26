@@ -31,7 +31,7 @@
  ![log system class diagram](https://github.com/Disappear101/hight-performance-server/assets/105203326/9d4a4e1e-837a-4a6b-95e4-6946495ee0d0)
 
 
-## 2. Configure Modular
+## 2. Configureration Modular
 This system uses YAML for configuration file parsing and includes template classes for converting between strings and various data types. 
 The implementation also supports dynamic configuration variable registration and retrieval. 
 Configuration modular used STL for container generalization, boost library for lexical casting, YAML-CPP for YAML parsing and achieved
@@ -125,9 +125,22 @@ The experiment measured the write speed and CPU usage of different types of mute
 The experiment shows that while NonMutex provides the highest write speed at the cost of high CPU usage and thread safety, 
 Mutex offers lower write speed with efficient CPU usage, whereas Spinlock and CASlock offer moderate write speeds with high CPU usage, suitable for short critical sections.
 
-## 4. Coroutines
+## 4. Fiber
+Fibers are a type of lightweight thread that can be managed and scheduled by the application rather than the operating system. 
+They provide a way to implement cooperative multitasking where the currently running fiber yields control explicitly, 
+allowing other fibers to run. This can be useful in scenarios where fine-grained control over scheduling and execution order is needed without the overhead of full-fledged threads.
 
-## 5. Coroutines Scheduler
+First of all, fiber has following different states.
+* **INIT**: This is the initial state of the fiber. When a fiber is created but not yet started, it is in the INIT state.
+* **HOLD**: This state indicates that the fiber is currently not running and has been voluntarily suspended. It is not ready to run until explicitly resumed.
+* **EXEC**: The fiber is currently running and executing its function. When a fiber is actively executing its code, it is in the EXEC state. This indicates that the fiber is the one currently being processed by the CPU.
+* **TERM**: The fiber has completed its execution and has terminated. Once a fiber's function has finished executing, it enters the TERM state. This indicates that the fiber's lifecycle is complete, and it can be cleaned up or reset.
+* **READY**: The fiber is ready to run but is not currently executing. It is waiting to be scheduled.
+* **EXCEPT**: The fiber has encountered an exception during execution.
+
+
+
+## 5. Fiber Scheduler
 
 ## 6. Timer
 
