@@ -32,6 +32,10 @@
 
 
 ## 2. Configure Modular
+This system uses YAML for configuration file parsing and includes template classes for converting between strings and various data types. 
+The implementation also supports dynamic configuration variable registration and retrieval. 
+Configuration modular used STL for container generalization, boost library for lexical casting, YAML-CPP for YAML parsing and achieved
+key features:
 * **Dynamic Configuration Lookup**:
  The LookupBase method allows retrieving configuration variables by name.
  Template-based Lookup methods support retrieval with type safety.
@@ -43,7 +47,7 @@
 * **Callback Mechanism**:
  Configuration variables support change listeners, allowing actions to be triggered when values are updated.
 * **Thread Safety**:
- The use of RWMutexType ensures thread-safe operations on configuration data.
+ The use of customized RWMutexType ensures thread-safe operations on configuration data.
 
 ## 3. Thread and Mutex
 
