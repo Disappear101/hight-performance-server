@@ -92,6 +92,32 @@ class:
 ```
 
 ## 3. Thread and Mutex
+Here encapsulated semaphore and several types of locks, each suited for different scenarios in concurrent programming. 
+* **semaphore**
+ A semaphore is a synchronization primitive used to control access to a common resource in a concurrent system such as a multiprogramming operating system.
+ Semaphores can be used to solve various synchronization problems like controlling access to a pool of resources or ensuring that certain sequences of operations are performed in the correct order.
+* **Mutex**
+ This is a standard mutex based on POSIX threads (pthreads). It ensures mutual exclusion, allowing only one thread to access the critical section at a time.
+ Use this when you need simple, straightforward mutual exclusion without reader/writer differentiation. Suitable for protecting small critical sections and avoiding race conditions.
+* **RWMutex**
+ A read-write mutex that allows multiple concurrent readers or one writer. It uses POSIX read-write locks. Ideal for situations where reads are more frequent than writes.
+ It improves performance by allowing concurrent read access while still ensuring exclusive access for writes.
+* **SpinLock**
+ A spinlock that uses busy-waiting instead of blocking. Threads attempting to acquire the lock will continuously check until the lock becomes available.
+ Suitable for very short critical sections where the overhead of blocking and waking up threads would be higher than spinning. Not recommended for long critical sections due to potential CPU waste.
+* **CASLock**
+ A lock that uses the Compare-And-Swap (CAS) atomic operation to implement a spinlock. This ensures thread safety by spinning until the lock is acquired.
+ Efficient for short critical sections, similar to SpinLock, but potentially more efficient due to the atomic operations used. It avoids the overhead of system calls in some cases.
+
+Thread class offers a robust implementation for managing threads in a C++ application. 
+It encapsulates the details of thread creation, management, worker function, and synchronization, providing a higher-level interface for multithreading.
+Utilizes a semaphore to ensure proper thread initialization before proceeding.
+
+| Mutex Type | write speed | CPU usage |
+|----------|----------|----------|
+| Row 1, Col 1 | Row 1, Col 2 | Row 1, Col 3 |
+| Row 2, Col 1 | Row 2, Col 2 | Row 2, Col 3 |
+| Row 3, Col 1 | Row 3, Col 2 | Row 3, Col 3 |
 
 ## 4. Coroutines
 
