@@ -4,6 +4,7 @@
 #include "http.h"
 #include "http_session.h"
 #include "../tcpserver.h"
+#include "servlet.h"
 
 namespace tao {
 namespace http {
@@ -14,11 +15,16 @@ public:
     HttpServer(bool keepalive = false
                 ,tao::IOManager* worker = tao::IOManager::GetThis()
                 ,tao::IOManager* accept_worker = tao::IOManager::GetThis());
+
+    ServletDispatch::ptr getServletDispatch() const { return m_dispatch;}
+    void setServletDispatch(ServletDispatch::ptr v) { m_dispatch = v;}
+
 protected:
     virtual void handleClient(tao::Socket::ptr client) override;
 
 private:
     bool m_isKeepalive;
+    ServletDispatch::ptr m_dispatch;
 };
 
 } 

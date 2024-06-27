@@ -47,7 +47,7 @@ private:
 
 class HttpResponseParser {
 public:
-    using ptr = std::shared_ptr<HttpRequestParser>;
+    using ptr = std::shared_ptr<HttpResponseParser>;
 
     HttpResponseParser();
 

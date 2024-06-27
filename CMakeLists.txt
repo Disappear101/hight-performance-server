@@ -27,6 +27,8 @@ set(LIB_SRC
     src/http/http_parser.cpp
     src/http/http_session.cpp
     src/http/http_server.cpp
+    src/http/http_connection.cpp
+    src/http/servlet.cpp
     src/socket.cpp
     src/streams/socket_stream.cpp
     src/stream.cpp
@@ -46,7 +48,7 @@ set(LIB_SRC
 
 ragelmaker(src/http/http11_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
 ragelmaker(src/http/httpclient_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
-#ragelmaker(src/uri.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/sylar)
+ragelmaker(src/http/uri.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
 
 add_library(tao SHARED ${LIB_SRC})
 
@@ -142,6 +144,8 @@ tao_add_executable(echo_server "examples/echo_server.cpp" tao "${LIB_LIB}")
 # add_dependencies(echo_server tao)
 # target_link_libraries(echo_server ${LIB_LIB})
 
+tao_add_executable(test_http_connection "tests/test_http_connection.cpp" tao "${LIB_LIB}")
+tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

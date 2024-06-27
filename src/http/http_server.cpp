@@ -8,7 +8,8 @@ static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
 tao::http::HttpServer::HttpServer(bool keepalive, tao::IOManager *worker, tao::IOManager *accept_worker)
     :TcpServer(worker, accept_worker)
-    ,m_isKeepalive(keepalive) {
+    ,m_isKeepalive(keepalive) 
+    ,m_dispatch(std::make_shared<ServletDispatch>()){
 }
 
 void HttpServer::handleClient(tao::Socket::ptr client)
@@ -25,8 +26,8 @@ void HttpServer::handleClient(tao::Socket::ptr client)
         HttpResponse::ptr rsp = std::make_shared<HttpResponse>(req->getVersion()
                             ,req->isClose() || !m_isKeepalive);
         rsp->setHeader("Server", getName());
-        rsp->setBody("hello there");
-        //m_dispatch->handle(req, rsp, session);
+        //rsp->setBody("hello there");
+        m_dispatch->handle(req, rsp, session);
         session->sendResponse(rsp);
     } while (m_isKeepalive);
     session->close();

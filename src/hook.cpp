@@ -209,7 +209,7 @@ int socket(int domain, int type, int protocol) {
     if (fd == -1) {
         return fd;
     } 
-    tao::FdMgr::GetInstance()->get(fd, true);
+    tao::FdMgr::GetInstance()->get(fd, true);//register fd and set as non-block
     return fd;
 }
 

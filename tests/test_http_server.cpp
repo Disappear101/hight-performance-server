@@ -10,6 +10,22 @@ void run() {
     {
         sleep(2);
     }
+
+    auto sd = server->getServletDispatch();
+    sd->addServlet("/tao/xx", [](tao::http::HttpRequest::ptr req
+                ,tao::http::HttpResponse::ptr rsp
+                ,tao::http::HttpSession::ptr session) {
+            rsp->setBody(req->toString());
+            return 0;
+    });
+
+    sd->addGlobServlet("/tao/*", [](tao::http::HttpRequest::ptr req
+                ,tao::http::HttpResponse::ptr rsp
+                ,tao::http::HttpSession::ptr session) {
+            rsp->setBody("Glob:\r\n" + req->toString());
+            return 0;
+    });
+
     server->start();
 }
 
