@@ -150,12 +150,14 @@ The lifecycle of a fiber is illustrated by the fiber state machine diagram. A fi
 The fiber scheduler manages the execution of fibers across multiple threads, ensuring efficient scheduling, execution, and synchronization.
 A M-thread N-fiber mode is used to inprove the performance.
 
-Every thread at least has two basic fibers：
+Every thread at least has two basic fibers and task fibers：
 * Scheduler fiber： Scheduler fiber is integral to managing the lifecycle and execution of fibers within a multithreaded environment.
   It ensures efficient task scheduling, execution, synchronization, and resource management. By coordinating fibers and threads,
   the Scheduler enables cooperative multitasking, providing a robust framework for concurrent execution. Switching between fibers must be done through the scheduler fiber, so
   task fibers are not allowed to be directly switched, which prevent from confusion over executive ownership.
-* Idle fiber
+* Idle fiber: The idle fiber in a fiber-based scheduler plays a critical role in ensuring efficient CPU utilization and proper task management when
+  there are no immediate tasks to execute. The idle function in class scheduler is a virtual function so that it is able to overide it in a customized way to adapt different scenario.
+* Task fiber: Task fiber is the carrier of the real tasks, as well as the objects to be scheduled.
 
 ![scheduler state machine](https://github.com/Disappear101/hight-performance-server/assets/105203326/b2917b73-fed5-4812-abd5-8d3471697e08)
 
