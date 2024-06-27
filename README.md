@@ -129,8 +129,9 @@ Mutex offers lower write speed with efficient CPU usage, whereas Spinlock and CA
 Fibers are a type of lightweight thread that can be managed and scheduled by the application rather than the operating system. 
 They provide a way to implement cooperative multitasking where the currently running fiber yields control explicitly, 
 allowing other fibers to run. This can be useful in scenarios where fine-grained control over scheduling and execution order is needed without the overhead of full-fledged threads.
+Adopt ucontext libary and Callback mechanism to encapsulate a flexible and robust fiber. 
 
-First of all, fiber has following different states.
+Fiber is designed based on different states and a state machine, which ensures a reliable schduling proccess.
 * **INIT**: This is the initial state of the fiber. When a fiber is created but not yet started, it is in the INIT state.
 * **HOLD**: This state indicates that the fiber is currently not running and has been voluntarily suspended. It is not ready to run until explicitly resumed.
 * **EXEC**: The fiber is currently running and executing its function. When a fiber is actively executing its code, it is in the EXEC state. This indicates that the fiber is the one currently being processed by the CPU.
