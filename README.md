@@ -129,8 +129,9 @@ Mutex offers lower write speed with efficient CPU usage, whereas Spinlock and CA
 Fibers are a type of lightweight thread that can be managed and scheduled by the application rather than the operating system. 
 They provide a way to implement cooperative multitasking where the currently running fiber yields control explicitly, 
 allowing other fibers to run. This can be useful in scenarios where fine-grained control over scheduling and execution order is needed without the overhead of full-fledged threads.
+Adopt ucontext libary and Callback mechanism to encapsulate a flexible and robust fiber. 
 
-First of all, fiber has following different states.
+Fiber is designed based on different states and a state machine, which ensures a reliable schduling proccess.
 * **INIT**: This is the initial state of the fiber. When a fiber is created but not yet started, it is in the INIT state.
 * **HOLD**: This state indicates that the fiber is currently not running and has been voluntarily suspended. It is not ready to run until explicitly resumed.
 * **EXEC**: The fiber is currently running and executing its function. When a fiber is actively executing its code, it is in the EXEC state. This indicates that the fiber is the one currently being processed by the CPU.
@@ -146,6 +147,20 @@ The lifecycle of a fiber is illustrated by the fiber state machine diagram. A fi
 
 
 ## 5. Fiber Scheduler
+The fiber scheduler manages the execution of fibers across multiple threads, ensuring efficient scheduling, execution, and synchronization.
+A M-thread N-fiber mode is used to inprove the performance.
+
+Every thread at least has two basic fibers and task fibers：
+* Scheduler fiber： Scheduler fiber is integral to managing the lifecycle and execution of fibers within a multithreaded environment.
+  It ensures efficient task scheduling, execution, synchronization, and resource management. By coordinating fibers and threads,
+  the Scheduler enables cooperative multitasking, providing a robust framework for concurrent execution. Switching between fibers must be done through the scheduler fiber, so
+  task fibers are not allowed to be directly switched, which prevent from confusion over executive ownership.
+* Idle fiber: The idle fiber in a fiber-based scheduler plays a critical role in ensuring efficient CPU utilization and proper task management when
+  there are no immediate tasks to execute. The idle function in class scheduler is a virtual function so that it is able to overide it in a customized way to adapt different scenario.
+* Task fiber: Task fiber is the carrier of the real tasks, as well as the objects to be scheduled.
+
+![scheduler state machine](https://github.com/Disappear101/hight-performance-server/assets/105203326/b2917b73-fed5-4812-abd5-8d3471697e08)
+
 
 ## 6. Timer
 
