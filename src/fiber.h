@@ -39,10 +39,16 @@ public:
 
     //Thread->main_fiber(scheduler) <---> sub_fiber
     
-    //switches to current fiber and obtain executive right from scheduler fiber
+    /**
+     * switches to current fiber and obtain executive from scheduler fiber
+     * used for case where use_caller is false
+     * */
     void swapIn();
 
-    //return executive right back to schedulerfiber
+    /**
+     * return executive back to schedulerfiber
+     * used for case where use_caller is false
+     * */
     void swapOut();
 
     //obtain id of current executing fiber in current thread 
@@ -50,10 +56,16 @@ public:
 
     State getState() const { return m_state; }
 
-    //Swicthes to current and obtain executive right from main fiber of current thead
+    /**
+     * Swicthes to current and obtain executive right from main fiber of current thead
+     * used for case where use_caller is true
+     * */
     void call();
 
-    //return executive right back to main fiber of current thread
+    /**
+     * return executive right back to main fiber of current thread
+     * used for case where use_caller is true
+     * */
     void back();
 
 public:
@@ -61,9 +73,9 @@ public:
     static void SetThis(Fiber* f);
     //return current executing fiber 
     static Fiber::ptr GetThis();
-    //The coroutine switches to the background, gives up executive right and set as ready status
+    //The fiber switches to the background, gives up executive and set as ready status
     static void YieldToReady();
-    //The coroutine switches to the background, set as hold status 
+    //The coroutine switches to the background, gives up executive and set as hold status 
     static void YieldToHold();
     //total number if fibers
     static uint64_t nFibers();
@@ -71,8 +83,16 @@ public:
     //get
     static uint64_t GetFiberId();
 
+    /**
+     * fiber working function
+     * used for the case where use_caller is false
+    */
     static void MainFunc();
 
+    /**
+     * fiber working function
+     * used for the case where use_caller is true
+    */
     static void CallerMainFunc();
 private:
     uint64_t m_id = 0;

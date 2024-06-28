@@ -5,6 +5,7 @@
 #include "uri.h"
 #include "http.h"
 #include <memory>
+#include <list>
 
 namespace tao {
 namespace http {
@@ -102,6 +103,88 @@ public:
     HttpResponse::ptr recvResponse();
     int sendRequest(HttpRequest::ptr req);
 };
+
+class HttpConnectionPool {
+public:
+    using ptr = std::shared_ptr<HttpConnectionPool>;
+    using MutexType = Mutex;
+
+    HttpConnectionPool(const std::string& host
+                        , const std::string& vhost
+                        , uint32_t port
+                        , uint32_t max_size
+                        , uint32_t max_alive_time
+                        , uint32_t max_request);
+
+    //get one connection from connection pool
+    HttpConnection::ptr getConnection();
+
+    /**
+     * @brief send HTTP GET request
+     * @param[in] url url to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
+    HttpResult::ptr doGet(const std::string& url
+                          , uint64_t timeout_ms
+                          , const std::map<std::string, std::string>& headers = {}
+                          , const std::string& body = std::string());
+
+
+    HttpResult::ptr doGet(Uri::ptr uri
+                           , uint64_t timeout_ms
+                           , const std::map<std::string, std::string>& headers = {}
+                           , const std::string& body = std::string());
+
+
+    HttpResult::ptr doPost(const std::string& url
+                           , uint64_t timeout_ms
+                           , const std::map<std::string, std::string>& headers = {}
+                           , const std::string& body = std::string());
+
+ 
+    HttpResult::ptr doPost(Uri::ptr uri
+                           , uint64_t timeout_ms
+                           , const std::map<std::string, std::string>& headers = {}
+                           , const std::string& body = std::string());
+
+
+    HttpResult::ptr doRequest(HttpMethod method
+                            , const std::string& url
+                            , uint64_t timeout_ms
+                            , const std::map<std::string, std::string>& headers = {}
+                            , const std::string& body = std::string());
+
+
+    HttpResult::ptr doRequest(HttpMethod method
+                            , Uri::ptr uri
+                            , uint64_t timeout_ms
+                            , const std::map<std::string, std::string>& headers = {}
+                            , const std::string& body = std::string());
+
+
+    HttpResult::ptr doRequest(HttpRequest::ptr req
+                            , uint64_t timeout_ms);
+private: 
+    //host name
+    std::string m_host;
+    //
+    std::string m_vhost;
+    uint32_t m_port;
+
+    //max number of long connection. 
+    //when number of long connection exceed maxSize, create short connection
+    uint32_t m_maxSize;
+    uint32_t m_maxAliveTime;
+    uint32_t m_maxRequest;
+
+    MutexType m_mutex;
+    std::list<HttpConnection*> m_conns;
+    std::atomic<uint32_t> m_total = {0};
+};
+
 
 }
 }
