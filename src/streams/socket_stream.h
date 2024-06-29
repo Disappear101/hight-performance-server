@@ -18,6 +18,8 @@ public:
 
     bool isConnected() const;
 
+    Socket::ptr getSocket() const { return m_sock;};
+
     virtual int read(void* buffer, size_t length) override;
     virtual int read(ByteArray::ptr ba, size_t length) override;
     virtual int write(const void* buffer, size_t length) override;

@@ -28,7 +28,7 @@ Timer::Timer(uint64_t ms, std::function<void()> cb,
     ,m_ms(ms)
     ,m_cb(cb)
     ,m_manager(manager) {
-    m_next = tao::GetCurrnetMS() + m_ms;
+    m_next = tao::GetCurrentMS() + m_ms;
 }
 
 Timer::Timer(uint64_t next) 
@@ -57,7 +57,7 @@ bool Timer::refesh() {
         return false;
     }
     m_manager->m_timers.erase(it);//erase first 
-    m_next = tao::GetCurrnetMS() + m_ms;
+    m_next = tao::GetCurrentMS() + m_ms;
     m_manager->m_timers.insert(shared_from_this());
     return true;
 }
@@ -77,7 +77,7 @@ bool Timer::reset(uint64_t ms, bool from_now) {
     m_manager->m_timers.erase(it);
     uint64_t start = 0;
     if (from_now) {
-        start = tao::GetCurrnetMS();
+        start = tao::GetCurrentMS();
     } else {
         start = m_next - m_ms;//old start time
     }
@@ -134,7 +134,7 @@ uint64_t TimerManager::getNextTimer() {
         return ~0ull;
     }
     const Timer::ptr& next = *m_timers.begin();
-    uint64_t now_ms = tao::GetCurrnetMS();
+    uint64_t now_ms = tao::GetCurrentMS();
     if (now_ms >= next->m_next) //timer expired
     {
         return 0;
@@ -144,7 +144,7 @@ uint64_t TimerManager::getNextTimer() {
 }
 
 void TimerManager::listExpiredCb(std::vector<std::function<void()>>&cbs) {
-    uint64_t now_ms = tao::GetCurrnetMS();
+    uint64_t now_ms = tao::GetCurrentMS();
     {
         RWMutexType::ReadLock lock(m_mutex);
         if(m_timers.empty()) {

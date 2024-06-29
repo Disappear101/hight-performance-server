@@ -353,7 +353,7 @@ public:
                         << " " << it->second->toString();
                 return nullptr;
             }
-        }-
+        }
 
         if (name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_") 
                 != std::string::npos) {

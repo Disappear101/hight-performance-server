@@ -56,7 +56,10 @@ struct HttpResult {
     std::string error;
 };
 
+class HttpConnectionPool;
+
 class HttpConnection : public SocketStream {
+friend class HttpConnectionPool;
 public:
     using ptr = std::shared_ptr<HttpConnection>;
     //HttpSession();
@@ -68,10 +71,10 @@ public:
                           , const std::map<std::string, std::string>& headers = {}
                           , const std::string& body = std::string());
 
-    static HttpResult::ptr DoGet(Uri::ptr uri
+    static HttpResult::ptr DoGet(Uri::ptr uris
                            , uint64_t timeout_ms
                            , const std::map<std::string, std::string>& headers = {}
-                           , const std::string& body = "");
+                           , const std::string& body = std::string());
 
     static HttpResult::ptr DoPost(const std::string& url
                            , uint64_t timeout_ms
@@ -102,6 +105,9 @@ public:
 
     HttpResponse::ptr recvResponse();
     int sendRequest(HttpRequest::ptr req);
+private:
+    uint64_t m_createTime = 0;
+    uint64_t m_request = 0;
 };
 
 class HttpConnectionPool {
@@ -133,24 +139,58 @@ public:
                           , const std::string& body = std::string());
 
 
+    /**
+     * @brief send HTTP GET request
+     * @param[in] uri url to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
     HttpResult::ptr doGet(Uri::ptr uri
                            , uint64_t timeout_ms
                            , const std::map<std::string, std::string>& headers = {}
                            , const std::string& body = std::string());
 
 
+    /**
+     * @brief send HTTP Post request
+     * @param[in] url url to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
     HttpResult::ptr doPost(const std::string& url
                            , uint64_t timeout_ms
                            , const std::map<std::string, std::string>& headers = {}
                            , const std::string& body = std::string());
 
  
+
+    /**
+     * @brief send HTTP Post request
+     * @param[in] uri uri to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
     HttpResult::ptr doPost(Uri::ptr uri
                            , uint64_t timeout_ms
                            , const std::map<std::string, std::string>& headers = {}
                            , const std::string& body = std::string());
 
 
+    /**
+     * @brief send HTTP request with specified method
+     * @param[in] method Http method
+     * @param[in] url url to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
     HttpResult::ptr doRequest(HttpMethod method
                             , const std::string& url
                             , uint64_t timeout_ms
@@ -158,6 +198,15 @@ public:
                             , const std::string& body = std::string());
 
 
+    /**
+     * @brief send HTTP request with specified method
+     * @param[in] method Http method
+     * @param[in] uri uri to request
+     * @param[in] timeout_ms timeout (ms)
+     * @param[in] headers HTTP headers
+     * @param[in] body request body
+     * @return return HttpResult
+     */
     HttpResult::ptr doRequest(HttpMethod method
                             , Uri::ptr uri
                             , uint64_t timeout_ms
@@ -165,8 +214,17 @@ public:
                             , const std::string& body = std::string());
 
 
+    /**
+     * @brief send HTTP request with HttpRequest
+     * @param[in] req Http Request
+     * @param[in] timeout_ms timeout (ms)
+     * @return return HttpResult
+     */
     HttpResult::ptr doRequest(HttpRequest::ptr req
                             , uint64_t timeout_ms);
+
+private:
+    static void ReleasePtr(HttpConnection* ptr, HttpConnectionPool* pool);
 private: 
     //host name
     std::string m_host;
