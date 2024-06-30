@@ -146,6 +146,8 @@ tao_add_executable(echo_server "examples/echo_server.cpp" tao "${LIB_LIB}")
 
 tao_add_executable(test_http_connection "tests/test_http_connection.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
+tao_add_executable(load_test "tests/load_test.cpp" tao "${LIB_LIB}")
+
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

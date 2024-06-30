@@ -51,6 +51,8 @@ struct HttpResult {
 
     }
 
+    std::string toString() const;
+
     int result;
     HttpResponse::ptr response;
     std::string error;
@@ -64,7 +66,7 @@ public:
     using ptr = std::shared_ptr<HttpConnection>;
     //HttpSession();
     HttpConnection(Socket::ptr sock, bool owner = true);
-    ~HttpConnection() {}
+    ~HttpConnection();
 
     static HttpResult::ptr DoGet(const std::string& url
                           , uint64_t timeout_ms
@@ -115,6 +117,15 @@ public:
     using ptr = std::shared_ptr<HttpConnectionPool>;
     using MutexType = Mutex;
 
+    /**
+     * @brief constructor
+     * @param[in] host host to connect
+     * @param[in] vhost vhost to connect
+     * @param[in] port port to connect
+     * @param[in] max_size max size of connection pool
+     * @param[in] max_alive_time max alive time of each connection
+     * @param[in] max_alive_time max request times of each connection
+     */
     HttpConnectionPool(const std::string& host
                         , const std::string& vhost
                         , uint32_t port
@@ -122,7 +133,9 @@ public:
                         , uint32_t max_alive_time
                         , uint32_t max_request);
 
-    //get one connection from connection pool
+    HttpConnection::ptr createConnection();
+
+    //get one connection from connection pool. If no connection in pool, create new connection
     HttpConnection::ptr getConnection();
 
     /**
@@ -224,6 +237,12 @@ public:
                             , uint64_t timeout_ms);
 
 private:
+    /**
+     * @brief Manage new created connections. release ptr of HttpConnection when it is invalid, otherwise add into connection pool
+     * @param[in] ptr pointer of HttpConnection
+     * @param[in] HttpConnectionPool pointer of HttpConnectionPool
+     * @return return HttpResult
+     */
     static void ReleasePtr(HttpConnection* ptr, HttpConnectionPool* pool);
 private: 
     //host name
@@ -232,14 +251,25 @@ private:
     std::string m_vhost;
     uint32_t m_port;
 
-    //max number of long connection. 
-    //when number of long connection exceed maxSize, create short connection
+    /*
+    * max number of long connection. 
+    * when number of long connection exceed maxSize, create short connection
+    */
     uint32_t m_maxSize;
+
+    /**
+     * max alive time of connection
+    */
     uint32_t m_maxAliveTime;
+
+    /**
+     * max request times of each connection in connection pool
+    */
     uint32_t m_maxRequest;
 
     MutexType m_mutex;
     std::list<HttpConnection*> m_conns;
+    //total number of connections
     std::atomic<uint32_t> m_total = {0};
 };
 

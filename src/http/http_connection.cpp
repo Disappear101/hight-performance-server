@@ -8,9 +8,24 @@ namespace http {
 
 static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
+std::string HttpResult::toString() const
+{
+    std::stringstream ss;
+    ss << "[HttpResult result=" << result 
+       << " error=" << error
+       << " response=" << (response ? response->toString() : "nullptr")
+       << "]";
+    return ss.str();
+}
+
 HttpConnection::HttpConnection(Socket::ptr sock, bool owner)
     :SocketStream(sock, owner) {
 
+}
+
+HttpConnection::~HttpConnection()
+{
+    TAO_LOG_DEBUG(g_logger) << "HttpConnection::~HttpConnection()";
 }
 
 HttpResult::ptr HttpConnection::DoGet(const std::string &url
@@ -274,6 +289,9 @@ HttpResponse::ptr HttpConnection::recvResponse()
 
 int HttpConnection::sendRequest(HttpRequest::ptr req)
 {
+    // if (!getSocket()->isConnected()) {
+    //     return 0;
+    // }
     std::stringstream ss;
     ss << *req;
     std::string data = ss.str();
@@ -287,6 +305,30 @@ HttpConnectionPool::HttpConnectionPool(const std::string &host, const std::strin
     ,m_maxSize(max_size)
     ,m_maxAliveTime(max_alive_time)
     ,m_maxRequest(max_request) {
+}
+HttpConnection::ptr HttpConnectionPool::createConnection()
+{
+    HttpConnection* ptr = nullptr;
+    IPAddress::ptr addr = Address::LookupAnyIPAddress(m_host);
+    if (!addr) {
+        TAO_LOG_ERROR(g_logger) << "get addr fail: " << m_host;
+        return nullptr;
+    }
+    addr->setPort(m_port);
+    Socket::ptr sock = Socket::CreateTCP(addr);
+    if (!sock) {
+        TAO_LOG_ERROR(g_logger) << "create sock fail: " << *addr;
+        return nullptr;
+    }
+    if(!sock->connect(addr)) {
+        TAO_LOG_ERROR(g_logger) << "sock connect fail: " << *addr;
+        return nullptr;
+    } 
+    ptr = new HttpConnection(sock);
+    ptr->m_createTime = tao::GetCurrentMS();
+    ++m_total;
+    return HttpConnection::ptr(ptr, std::bind(&HttpConnectionPool::ReleasePtr
+                                    , std::placeholders::_1, this));
 }
 HttpConnection::ptr HttpConnectionPool::getConnection()
 {
@@ -312,11 +354,46 @@ HttpConnection::ptr HttpConnectionPool::getConnection()
     for (auto i : invalid_conns) {
         delete i;
     }
-    if (ptr) {
-        return std::make_shared<HttpConnection>(*ptr);
+    m_total -= invalid_conns.size();
+    if (!ptr) {//if no connection, create new connection
+        IPAddress::ptr addr = Address::LookupAnyIPAddress(m_host);
+        if (!addr) {
+            TAO_LOG_ERROR(g_logger) << "get addr fail: " << m_host;
+            return nullptr;
+        }
+        addr->setPort(m_port);
+        Socket::ptr sock = Socket::CreateTCP(addr);
+        if (!sock) {
+            TAO_LOG_ERROR(g_logger) << "create sock fail: " << *addr;
+            return nullptr;
+        }
+        if(!sock->connect(addr)) {
+            TAO_LOG_ERROR(g_logger) << "sock connect fail: " << *addr;
+            return nullptr;
+        } 
+        ptr = new HttpConnection(sock);
+        ptr->m_createTime = tao::GetCurrentMS();
+        ++m_total;
     }
-    return HttpConnection::ptr();
+    return HttpConnection::ptr(ptr, std::bind(&HttpConnectionPool::ReleasePtr
+                                    , std::placeholders::_1, this));
 }
+
+void HttpConnectionPool::ReleasePtr(HttpConnection *ptr, HttpConnectionPool *pool)
+{
+    ++ptr->m_request;
+    if (!ptr->isConnected() 
+        || ptr->m_createTime + pool->m_maxAliveTime >= tao::GetCurrentMS()
+        || ptr->m_request >= pool->m_maxRequest) {
+        delete ptr;
+        --pool->m_total;
+        return;
+    }
+    //if new connection is still valid, push into connection pool
+    MutexType::Lock lock(pool->m_mutex);
+    pool->m_conns.push_back(ptr);
+}
+
 HttpResult::ptr HttpConnectionPool::doGet(const std::string &url
                                             , uint64_t timeout_ms
                                             , const std::map<std::string, std::string> &headers
@@ -438,5 +515,8 @@ HttpResult::ptr HttpConnectionPool::doRequest(HttpRequest::ptr req
     }
     return std::make_shared<HttpResult>((int)HttpResult::Error::OK, rsp, "ok");
 }
+
+
+
 }
 }

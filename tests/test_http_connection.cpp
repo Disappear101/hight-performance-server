@@ -7,15 +7,15 @@
 
 static tao::Logger::ptr g_logger = TAO_LOG_ROOT();
 
-// void test_pool() {
-//     tao::http::HttpConnectionPool::ptr pool(new sylar::http::HttpConnectionPool(
-//                 "www.sylar.top", "", 80, false, 10, 1000 * 30, 5));
+void test_pool() {
+    tao::http::HttpConnectionPool::ptr pool = std::make_shared<tao::http::HttpConnectionPool>(
+                "www.sylar.top", "", 80, 10, 1000 * 30, 5);
 
-//     tao::IOManager::GetThis()->addTimer(1000, [pool](){
-//             auto r = pool->doGet("/", 300);
-//             SYLAR_LOG_INFO(g_logger) << r->toString();
-//     }, true);
-// }
+    tao::IOManager::GetThis()->addTimer(1000, [pool](){
+            auto r = pool->doGet("/", 300);
+            TAO_LOG_INFO(g_logger) << r->toString();
+    }, true);
+}
 
 void run() {
     tao::Address::ptr addr = tao::Address::LookupAnyIPAddress("www.sylar.top:80");
@@ -57,7 +57,7 @@ void run() {
         << " rsp=" << (r->response ? r->response->toString() : "");
 
     TAO_LOG_INFO(g_logger) << "=========================";
-    //test_pool();
+    test_pool();
 }
 
 int main(int argc, char** argv) {

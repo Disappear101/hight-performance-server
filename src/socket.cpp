@@ -16,7 +16,7 @@ Socket::ptr Socket::CreateTCP(tao::Address::ptr address) {
 Socket::ptr Socket::CreateUDP(tao::Address::ptr address) {
     Socket::ptr sock = std::make_shared<Socket>(address->getFamily(), UDP, 0);
     sock->newSock();
-    sock->m_isConnected = true;
+    sock->m_isConnected = true;//UDP doesn't need connect
     return sock;
 }
 
