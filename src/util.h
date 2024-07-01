@@ -31,6 +31,10 @@ uint64_t GetCurrentMS();
 
 uint64_t GetCurrentUS();
 
+std::string Time2Str(time_t ts, const std::string& format = "%Y-%m-%d %H:%M:%S");
+
+time_t Str2Time(const char* str, const char* format = "%Y-%m-%d %H:%M:%S");
+
 }
 
 #endif

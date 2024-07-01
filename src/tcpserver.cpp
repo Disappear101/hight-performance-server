@@ -51,14 +51,17 @@ bool TcpServer::bind(const std::vector<Address::ptr> &addrs
             continue;
         }
         m_socks.push_back(sock);
-        TAO_LOG_INFO(g_logger) << "type=" 
-            << " name=" << m_name
-            << " server bind success: " << i->toString();
     }
-    // if (!fails.empty()) {
-    //     m_socks.clear();
-    //     return false;
-    // }
+    if(!fails.empty()) {
+        m_socks.clear();
+        return false;
+    }
+
+    for(auto& i : m_socks) {
+        TAO_LOG_INFO(g_logger) << "type=" << m_type
+            << " name=" << m_name
+            << " server bind success: " << *i;
+    }
     return true;
 }
 bool TcpServer::start()

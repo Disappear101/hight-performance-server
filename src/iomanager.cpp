@@ -264,7 +264,7 @@ void IOManager::idle() {
 
     while (true) {
         uint64_t next_timeout = 0;
-        if (stopping(next_timeout)) {//get next time out
+        if (TAO_UNLIKELY(stopping(next_timeout))) {//get next time out
             TAO_LOG_INFO(g_logger) << "name = " << getName()
                             << " idle stopping exit";
             break;  

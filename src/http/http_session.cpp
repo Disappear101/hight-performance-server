@@ -3,7 +3,7 @@
 
 
 namespace tao {
-namespace http {
+namespace http { 
 
 HttpSession::HttpSession(Socket::ptr sock, bool owner) 
     :SocketStream(sock, owner) {
@@ -24,7 +24,7 @@ HttpRequest::ptr HttpSession::recvRequest()
     int offset = 0;//start position of valid http request msg
 
     do {
-        int len = read(data + offset, buff_size - offset);
+        int len = read(data + offset, buff_size - offset);//swap out here until data is coming
         if (len <= 0) {
             close();
             return nullptr;

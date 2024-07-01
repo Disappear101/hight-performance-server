@@ -156,12 +156,6 @@ void TimerManager::listExpiredCb(std::vector<std::function<void()>>&cbs) {
     }
     std::vector<Timer::ptr> expired;
 
-    {
-        RWMutexType::ReadLock lock(m_mutex);
-        if (m_timers.empty()) {
-            return;
-        }
-    }
     RWMutexType::WriteLock lock(m_mutex);
     Timer::ptr now_tmp(new Timer(now_ms));
     auto it = m_timers.lower_bound(now_tmp);

@@ -41,6 +41,7 @@ private:
     IOManager* m_acceptWorker;              //accept worker
     uint64_t m_readTimeout;                 //didn't receive message for a long time 
     std::string m_name;                     //name
+    std::string m_type = "tcp";             //type
     bool m_isStop;
 
 };

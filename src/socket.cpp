@@ -131,6 +131,7 @@ bool Socket::init(int sock) {
     if (ctx && ctx->isSocket() && !ctx->isClosed()) {
         m_sock = sock;
         m_isConnected = true;
+        initSock();
         getLocalAddress();
         getRemoteAddress();
         return true;

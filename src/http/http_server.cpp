@@ -14,6 +14,7 @@ tao::http::HttpServer::HttpServer(bool keepalive, tao::IOManager *worker, tao::I
 
 void HttpServer::handleClient(tao::Socket::ptr client)
 {
+    //TAO_LOG_DEBUG(g_logger) << "handleClient " << *client;
     HttpSession::ptr session = std::make_shared<HttpSession>(client);
     do {
         auto req = session->recvRequest();
@@ -29,7 +30,13 @@ void HttpServer::handleClient(tao::Socket::ptr client)
         //rsp->setBody("hello there");
         m_dispatch->handle(req, rsp, session);
         session->sendResponse(rsp);
-    } while (m_isKeepalive);
+
+        if (!m_isKeepalive || req->isClose()) {
+            std::cout << "m_isKeepalive = " << m_isKeepalive
+                    << "request status = " << req->isClose() << std::endl;
+            break;
+        }
+    } while (true);
     session->close();
 }
 }
