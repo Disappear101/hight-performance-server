@@ -1,4 +1,5 @@
 #include "config.h"
+#include "env.h"
 
 //A:
 //  B: 10
@@ -13,7 +14,6 @@ ConfigVarBase::ptr Config::LookupBase(const std::string& name) {
     auto it = GetDatas().find(name);
     return it == GetDatas().end() ? nullptr : it->second;
 }
-
 
 static void ListAllMember(const std::string& prefix, 
                             const YAML::Node& node, 
@@ -54,6 +54,10 @@ void Config::LoadFromYaml(const YAML::Node& root){
     }
 }
 
+void Config::LoadFromConfDir(const std::string &path, bool force)
+{
+    std::string abs_path = tao::EnvMgr::GetInstance()->getAbsolutePath(path);
+}
 
 void Config::Visit(std::function<void(ConfigVarBase::ptr)> cb) {
     RWMutexType::ReadLock lock(GetMutex());

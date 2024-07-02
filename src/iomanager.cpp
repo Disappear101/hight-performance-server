@@ -44,7 +44,8 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     m_epfd = epoll_create1(0);
     TAO_ASSERT(m_epfd > 0);
 
-    int rt = pipe(m_tickleFds);//intitiate bidirectional pipe(0:read, 1:write)
+    //intitiate bidirectional pipe(0:read, 1:write)
+    int rt = pipe(m_tickleFds);
     TAO_ASSERT(rt == 0);
 
     epoll_event event;
@@ -267,7 +268,7 @@ void IOManager::idle() {
         if (TAO_UNLIKELY(stopping(next_timeout))) {//get next time out
             TAO_LOG_INFO(g_logger) << "name = " << getName()
                             << " idle stopping exit";
-            break;  
+            break; 
         }
         //TAO_LOG_DEBUG(g_logger) << "==========";
         int rt = 0;

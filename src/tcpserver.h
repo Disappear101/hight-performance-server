@@ -35,7 +35,7 @@ protected:
     virtual void handleClient(tao::Socket::ptr client);
     virtual void startAccept(tao::Socket::ptr sock);
 
-private:
+protected:
     std::vector<Socket::ptr> m_socks;       //sockets connected to server
     IOManager* m_worker;                    //(N thread : M fiber)handle io events
     IOManager* m_acceptWorker;              //accept worker

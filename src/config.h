@@ -378,6 +378,8 @@ public:
     static void LoadFromYaml(const YAML::Node& root);
     static ConfigVarBase::ptr LookupBase(const std::string& name);
 
+    static void LoadFromConfDir(const std::string& path, bool force = false);
+
     //retrieve and modify all configvar
     static void Visit(std::function<void(ConfigVarBase::ptr)> cb);
 private:

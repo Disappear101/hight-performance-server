@@ -10,6 +10,9 @@ tao::http::HttpServer::HttpServer(bool keepalive, tao::IOManager *worker, tao::I
     :TcpServer(worker, accept_worker)
     ,m_isKeepalive(keepalive) 
     ,m_dispatch(std::make_shared<ServletDispatch>()){
+    m_dispatch.reset(new ServletDispatch);
+
+    m_type = "http";   
 }
 
 void HttpServer::handleClient(tao::Socket::ptr client)
@@ -32,8 +35,8 @@ void HttpServer::handleClient(tao::Socket::ptr client)
         session->sendResponse(rsp);
 
         if (!m_isKeepalive || req->isClose()) {
-            std::cout << "m_isKeepalive = " << m_isKeepalive
-                    << "request status = " << req->isClose() << std::endl;
+            // std::cout << "m_isKeepalive = " << m_isKeepalive
+            //         << "request status = " << req->isClose() << std::endl;
             break;
         }
     } while (true);

@@ -136,7 +136,7 @@ retry://socket io operation
             }
             return -1;
         } else {
-            tao::Fiber::YieldToHold();//swap to scheduler fiber, set status as HOLD
+            tao::Fiber::YieldToHold();//swap to scheduler fiber to schedule io event, set status as HOLD
             if (timer) {//if socket io is activated, wake up here, cancle the timer 
                 timer->cancel();
             }
