@@ -168,6 +168,11 @@ Every thread at least has two basic fibers and task fibers：
 
 ## 8. Hook
 
+The hooked io operations was implemented to manage io in a customized way that io operations fun under non-block mode and their fiber can be swapped out/in when io operations are waiting status/triggered status.
+
+![hook](https://github.com/Disappear101/hight-performance-server/assets/105203326/9d8e0eec-f7aa-4270-9e02-f61f395c654a)
+
+
 ## 9. ByteArray
 
 ## 10.Http
