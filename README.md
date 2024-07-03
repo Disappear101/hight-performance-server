@@ -164,11 +164,18 @@ Every thread at least has two basic fibers and task fibers：
 
 ## 6. Timer
 
+Timers play a crucial role in I/O (Input/Output) operations for several reasons. They help manage and optimize the performance of systems that deal with I/O tasks, ensuring efficiency, reliability, and responsiveness.
+The purposes of customizing timer are:
+* ** Efficient Resource Utilization **: By setting timeouts and periodically checking the status of I/O operations, systems can free up resources tied to stalled or slow operations, improving overall efficiency.
+* ** Non-Blocking I/O **: Timers are integral to implementing non-blocking I/O operations, allowing the system to continue processing other tasks while waiting for I/O operations to complete. This improves the responsiveness and throughput of the application.
+* ** Event-Driven Architecture **: In event-driven systems, timers are used to schedule and manage events, triggering I/O operations at the appropriate times and handling their completion asynchronously.
+* ** Task Scheduling **: Timers can be used to schedule I/O operations at specific times or intervals, ensuring that tasks are performed in a timely manner.
+
 ## 7. IOManager
 
 ## 8. Hook
 
-The hooked io operations was implemented to manage io in a customized way that io operations fun under non-block mode and their fiber can be swapped out/in when io operations are waiting status/triggered status.
+The hooked io operations was implemented to manage io in a customized way that io operations run under non-block mode and their fibers can be swapped out/in when io operations are waiting status/triggered status.
 
 ![hook](https://github.com/Disappear101/hight-performance-server/assets/105203326/9d8e0eec-f7aa-4270-9e02-f61f395c654a)
 
