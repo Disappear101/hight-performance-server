@@ -43,7 +43,7 @@ public:
     IOManager(size_t threads = 1, bool use_caller = true, const std::string& name = std::string());
     ~IOManager();
 
-    //1 success, 0, retry, -1 error
+    //0 success, -1 error
     int addEvent(int fd, Event e, std::function<void()> cb = nullptr);
     //delete specified events
     bool delEvent(int fd, Event e);

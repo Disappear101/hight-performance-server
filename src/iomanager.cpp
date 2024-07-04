@@ -56,7 +56,7 @@ IOManager::IOManager(size_t threads, bool use_caller, const std::string& name)
     rt = fcntl(m_tickleFds[0], F_SETFL, O_NONBLOCK);
     TAO_ASSERT(rt == 0);
 
-    rt = epoll_ctl(m_epfd, EPOLL_CTL_ADD, m_tickleFds[0], &event);
+    rt = epoll_ctl(m_epfd, EPOLL_CTL_ADD, m_tickleFds[0], &event);//add into epoll
     TAO_ASSERT(rt == 0);
 
     contextResize(32);

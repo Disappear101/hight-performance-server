@@ -103,11 +103,17 @@ static ssize_t do_io(int fd, OriginFun fun, const char* hook_fun_name,
         return fun(fd, std::forward<Args>(args)...);
     }
 
+    int flags = fcntl_f(fd, F_GETFL, 0);
+    if (!(flags & O_NONBLOCK)) {
+        fcntl_f(fd, F_SETFL, flags | O_NONBLOCK);//set as non-block
+        TAO_LOG_DEBUG(g_logger) << "Socket is reset as non-blocking";
+    }
+
     uint64_t to = ctx->getTimeout(timeout_so);
     std::shared_ptr<timer_info> tinfo = std::make_shared<timer_info>();
 
 retry://socket io operation
-    ssize_t n = fun(fd, std::forward<Args>(args)...);
+    ssize_t n = fun(fd, std::forward<Args>(args)...);//bug here to solve: it becomes blocked io somehow. 
     while (n == -1 && errno == EINTR) {//EINTR: interrupt. when it is interruptedm, retry
         n = fun(fd, std::forward<Args>(args)...);
     }
@@ -413,7 +419,7 @@ int fcntl(int fd, int cmd, ... /* arg */ ) {
             if(!ctx || ctx->isClosed() || !ctx->isSocket()) {
                 return arg;
             }
-            if(ctx->getUserNonBlock()) {
+            if(ctx->getSysNonBlock()) {
                 return arg | O_NONBLOCK;
             } else {
                 return arg & ~O_NONBLOCK;

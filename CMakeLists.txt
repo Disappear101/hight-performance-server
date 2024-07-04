@@ -22,6 +22,7 @@ set(LIB_SRC
     src/address.cpp
     src/daemon.cpp
     src/bytearray.cpp
+    src/env.cpp
     src/http/http.cpp
 #    src/http/http_parser.rl.cpp
 #    src/http/httpclient_parser.rl.cpp
@@ -29,6 +30,7 @@ set(LIB_SRC
     src/http/http_session.cpp
     src/http/http_server.cpp
     src/http/http_connection.cpp
+    src/http/servlets/status_servlet.cpp
     src/http/servlet.cpp
     src/socket.cpp
     src/streams/socket_stream.cpp
