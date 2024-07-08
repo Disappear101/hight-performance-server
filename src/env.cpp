@@ -16,7 +16,9 @@ bool Env::init(int argc, char **argv)
     char link[1024] = {0};
     char path[1024] = {0};
     sprintf(link, "/proc/%d/exe", getpid());//get pwd of executable
-    readlink(link, path, sizeof(path));
+    if (readlink(link, path, sizeof(path)) == -1) {
+        std::cerr << "Error reading symbolic link: " << strerror(errno) << std::endl;
+    }
     // /path/xxx/exe
     m_exe = path;
 

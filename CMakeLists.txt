@@ -7,6 +7,7 @@ include (cmake/utils.cmake)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -g -std=c++17 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++17 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -Wno-deprecated-declarations")
 
 include_directories(.)
 include_directories(/usr/local/include)
@@ -62,56 +63,22 @@ set(LIB_LIB
     )
 
 tao_add_executable(test_log "tests/test_log.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_config "tests/test_config.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_thread "tests/test_thread.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_util "tests/test_util.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_fiber "tests/test_fiber.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_scheduler "tests/test_scheduler.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_iomanager "tests/test_iomanager.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_hook "tests/test_hook.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_address "tests/test_address.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_socket "tests/test_socket.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_bytearray "tests/test_bytearray.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_http "tests/test_http.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_http_parser "tests/test_http_parser.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_tcpserver "tests/test_tcpserver.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_fdmanager "tests/test_fdmanager.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_http_server "tests/test_http_server.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(echo_server "examples/echo_server.cpp" tao "${LIB_LIB}")
-
-
 tao_add_executable(test_http_connection "tests/test_http_connection.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
 tao_add_executable(load_test "tests/load_test.cpp" tao "${LIB_LIB}")
