@@ -168,7 +168,7 @@ bool IOManager::cancelEvent(int fd, Event e) {
     lock.unlock();
 
     FdContext::MutexType::Lock lock2(fd_ctx->mutex);
-    if (!(fd_ctx->m_events & e)) {//if fd_ctx has no events to be canceled
+    if (TAO_UNLIKELY(!(fd_ctx->m_events & e))) {//if fd_ctx has no events to be canceled
         return false;
     }
 
@@ -193,7 +193,7 @@ bool IOManager::cancelEvent(int fd, Event e) {
     return true;
 }
 
-bool IOManager::cancleAll(int fd) {
+bool IOManager::cancelAll(int fd) {
     RWMutex::ReadLock lock(m_mutex);
     if ((int)m_fdContexts.size() <= fd) {
         return false;
@@ -248,7 +248,7 @@ bool IOManager::stopping() {
 }
 
 bool IOManager::stopping(uint64_t& timeout) {
-    timeout = getNextTimer();
+    timeout = getNextTimer();//closest timeout
     return timeout == ~0ull
         && m_pendingEventCount == 0
         && Scheduler::stopping();
@@ -365,5 +365,6 @@ void IOManager::contextResize(size_t sz) {
         }
     }
 }
+
 
 }

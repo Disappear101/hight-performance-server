@@ -1,8 +1,11 @@
 #include "log.h"
 #include "config.h"
+#include <stdarg.h>
 #include <map>
 #include <set>
 #include <functional>
+#include "env.h"
+
 
 namespace tao {
 
@@ -11,39 +14,41 @@ const char* LogLevel::ToString(LogLevel::Level level) {
 #define XX(name) \
     case LogLevel::name: \
         return #name; \
-        break; 
+        break;
+
     XX(DEBUG);
     XX(INFO);
     XX(WARN);
     XX(ERROR);
     XX(FATAL);
-#undef XX 
-    default: 
-        return "UNKNOW"; 
+#undef XX
+    default:
+        return "UNKNOW";
     }
     return "UNKNOW";
 }
 
 LogLevel::Level LogLevel::FromString(const std::string& str) {
 #define XX(level, v) \
-    if (str == #v) { \
+    if(str == #v) { \
         return LogLevel::level; \
     }
-    XX(DEBUG, DEBUG);
-    XX(INFO, INFO);
-    XX(WARN, WARN);
-    XX(ERROR, ERROR);
-    XX(FATAL, FATAL);
-
     XX(DEBUG, debug);
     XX(INFO, info);
     XX(WARN, warn);
     XX(ERROR, error);
     XX(FATAL, fatal);
 
+    XX(DEBUG, DEBUG);
+    XX(INFO, INFO);
+    XX(WARN, WARN);
+    XX(ERROR, ERROR);
+    XX(FATAL, FATAL);
     return LogLevel::UNKNOW;
 #undef XX
 }
+
+
 
 LogEventWrap::LogEventWrap::LogEventWrap(LogEvent::ptr event) 
     :m_event(event) {
@@ -234,15 +239,15 @@ void Logger::clearAppenders() {
 }
 
 void Logger::log(LogLevel::Level level, LogEvent::ptr event){
-    if (m_appenders.empty()) {
-        std::cout << "No available appender! please add appender!" <<  std::endl;
-        return;
-    }
     if (level >= m_level) {
         auto self = shared_from_this();
         MutexType::Lock lock(m_mutex);
-        for (auto & i : m_appenders) {
-            i->log(self, level, event);
+        if (!m_appenders.empty()) {
+            for (auto & i : m_appenders) {
+                i->log(self, level, event);
+            }
+        } else {
+            m_root->log(level, event);
         }
     }
 }
@@ -534,8 +539,9 @@ Logger::ptr LoggerManager::getLogger(const std::string& name) {
     }
 
     Logger::ptr logger = std::make_shared<Logger>(name);
+    logger->m_root = m_root;
     //add default appender
-    logger->addAppender(std::make_shared<StdoutLogAppender>());
+    //logger->addAppender(std::make_shared<StdoutLogAppender>());
     m_loggers[name] = logger;
     return logger;
 }
@@ -756,6 +762,7 @@ std::string LoggerManager::toYamlString() {
 void LoggerManager::init() {
 
 }
+
 
 
 }

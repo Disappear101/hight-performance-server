@@ -53,4 +53,6 @@ int Stream::writeFixSize(ByteArray::ptr ba, size_t length)
     }
     return length;
 }
+
+
 }

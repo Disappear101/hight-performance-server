@@ -1,5 +1,6 @@
 #include "config.h"
 #include "env.h"
+#include <sys/stat.h>
 
 //A:
 //  B: 10
@@ -8,6 +9,8 @@
 //"A.B", 10
 //"A.C", str
 namespace tao {
+
+static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
 ConfigVarBase::ptr Config::LookupBase(const std::string& name) {
     RWMutexType::ReadLock lock(GetMutex());
@@ -67,5 +70,6 @@ void Config::Visit(std::function<void(ConfigVarBase::ptr)> cb) {
         cb(it->second);
     }
 }
+
 
 }

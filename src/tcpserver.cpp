@@ -5,14 +5,14 @@ namespace tao {
 
 static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
-static tao::ConfigVar<uint64_t>::ptr g_tcpserver_read_timeout = 
-    tao::Config::Lookup("tcp_server.read_timeout", (uint64_t)(60 * 1000 * 2));
+static tao::ConfigVar<uint64_t>::ptr g_tcp_server_recv_timeout = 
+    tao::Config::Lookup("tcp_server.recv_timeout", (uint64_t)(60 * 1000 * 2));
 
 TcpServer::TcpServer(tao::IOManager *worker
                         , tao::IOManager* accept_worker)
     :m_worker(worker)
     ,m_acceptWorker(accept_worker)
-    ,m_readTimeout(g_tcpserver_read_timeout->getValue())
+    ,m_recvTimeout(g_tcp_server_recv_timeout->getValue())
     ,m_name("tao/1.0.0")
     ,m_isStop(true){
 }
@@ -76,9 +76,17 @@ bool TcpServer::start()
     }
     return true;
 }
-bool TcpServer::stop()
+void TcpServer::stop()
 {
-    return false;
+    m_isStop = true;
+    auto self = shared_from_this();
+    m_acceptWorker->schedule([this, self]() {
+        for(auto& sock : m_socks) {
+            sock->cancelAll();
+            sock->close();
+        }
+        m_socks.clear();
+    });
 }
 void TcpServer::handleClient(tao::Socket::ptr client)
 {
@@ -89,7 +97,7 @@ void TcpServer::startAccept(tao::Socket::ptr sock)
     while (!m_isStop) {
         Socket::ptr client = sock->accept();
         if (client) {
-            client->setRecvTimeout(m_readTimeout);
+            client->setRecvTimeout(m_recvTimeout);
             m_worker->schedule(std::bind(&TcpServer::handleClient, shared_from_this(), client));
         } else {
             TAO_LOG_ERROR(g_logger) << "accept errno=" << errno
@@ -97,4 +105,5 @@ void TcpServer::startAccept(tao::Socket::ptr sock)
         }
     }
 }
+
 }

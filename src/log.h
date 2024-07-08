@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include "util.h"
 #include "singleton.h"
 #include "mutex.h"
@@ -17,9 +18,10 @@
 
 //when exit if, LogEventWrap will deconstruct 
 #define TAO_LOG_LEVEL(logger, level) \
-    if (logger->getLevel() <= level) \
-        tao::LogEventWrap(std::make_shared<tao::LogEvent>(logger, level, \
-                        __FILE__, __LINE__, 0, tao::GetThreadId(), tao::GetFiberId(), time(0), tao::Thread::GetName())).getSS()
+    if(logger->getLevel() <= level) \
+        tao::LogEventWrap(tao::LogEvent::ptr(new tao::LogEvent(logger, level, \
+                        __FILE__, __LINE__, 0, tao::GetThreadId(),\
+                tao::GetFiberId(), time(0), tao::Thread::GetName()))).getSS()
 
 #define TAO_LOG_DEBUG(logger) TAO_LOG_LEVEL(logger, tao::LogLevel::DEBUG)
 
@@ -164,6 +166,7 @@ protected:
 };
 
 class Logger : public std::enable_shared_from_this<Logger>{
+friend class LoggerManager;
 public:
     using ptr = std::shared_ptr<Logger>;
     using MutexType = SpinLock; 
@@ -200,6 +203,7 @@ private:
     MutexType m_mutex;
     std::list<LogAppender::ptr> m_appenders;    //appender list
     LogFormatter::ptr m_formatter;              //formatter
+    Logger::ptr m_root;
 };
 
 //appender of log output to console
@@ -256,6 +260,8 @@ inline void tao_fmt_log_print(std::shared_ptr<Logger> logger, LogLevel::Level le
 }
 
 using LoggerMgr = tao::Singleton<LoggerManager>;
+
+
 
 };
 

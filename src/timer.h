@@ -22,7 +22,7 @@ public:
     bool cancel();
     
     //re insert into timer set with now being start time
-    bool refesh();
+    bool refresh();
 
     /*
     ms: time interval
@@ -70,13 +70,14 @@ public:
 
     void listExpiredCb(std::vector<std::function<void()>>&cbs);
 
-    //bool detectClockRollover(uint64_t now_ms);
+    bool detectClockRollover(uint64_t now_ms);
 
     bool hasTimer();
 private:
     RWMutexType m_mutex;
     std::set<Timer::ptr, Timer::Comparator>m_timers;
     bool m_tickled = false;
+    uint64_t m_previouseTime = 0;
 protected:
     virtual void onTimerInsertedAtFront() = 0;
 };

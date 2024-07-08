@@ -138,12 +138,12 @@ private:
     socklen_t m_length;
 };
 
-class UnknowAddress : public Address {
+class UnknownAddress : public Address {
 public:
-    using ptr = std::shared_ptr<UnknowAddress>;
-    UnknowAddress(int family);
-    UnknowAddress(const sockaddr& addr);
-    ~UnknowAddress();
+    using ptr = std::shared_ptr<UnknownAddress>;
+    UnknownAddress(int family);
+    UnknownAddress(const sockaddr& addr);
+    ~UnknownAddress();
 
     sockaddr* getAddr() const override;
     socklen_t getAddrLen() const override;
@@ -155,5 +155,6 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const Address& addr);
 }
+
 
 #endif

@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     TAO_LOG_INFO(logger) << "test macro";
     TAO_LOG_ERROR(logger) << "test macro error";
 
-    tao::tao_fmt_log_print(logger, tao::LogLevel::ERROR, "test fmt printed function in %s level case %d", "error", 1);
+    //tao::tao_fmt_log_print(logger, tao::LogLevel::ERROR, "test fmt printed function in %s level case %d", "error", 1);
     // TAO_LOG_FMT_ERROR(logger, "test macro fmt error %s", "aa");
 
     auto l = tao::LoggerMgr::GetInstance()->getLogger("xx");

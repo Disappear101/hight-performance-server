@@ -8,7 +8,7 @@ Semaphore::Semaphore(uint32_t count) {
     }
 }
 Semaphore::~Semaphore() {
-
+    sem_destroy(&m_semaphore);
 }
 void Semaphore::wait() {
     if (sem_wait(&m_semaphore)) {

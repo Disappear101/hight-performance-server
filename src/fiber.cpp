@@ -85,7 +85,8 @@ Fiber::~Fiber() {
             SetThis(nullptr);
         }
     }
-     TAO_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
+    TAO_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id 
+                            << " total=" << s_fiber_count;
 }
 
 
@@ -236,5 +237,8 @@ void Fiber::CallerMainFunc() {
     raw_ptr->back();
     TAO_ASSERT2(false, "never reach fiber_id=" + std::to_string(raw_ptr->getId()));
 }
+
+
+
 
 }

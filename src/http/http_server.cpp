@@ -17,29 +17,27 @@ tao::http::HttpServer::HttpServer(bool keepalive, tao::IOManager *worker, tao::I
 
 void HttpServer::handleClient(tao::Socket::ptr client)
 {
-    //TAO_LOG_DEBUG(g_logger) << "handleClient " << *client;
-    HttpSession::ptr session = std::make_shared<HttpSession>(client);
+    TAO_LOG_DEBUG(g_logger) << "handleClient " << *client;
+    HttpSession::ptr session(new HttpSession(client));
     do {
         auto req = session->recvRequest();
-        if (!req) {
-            TAO_LOG_WARN(g_logger) << "recv http request fail, errno = "
-                    << errno << " errstr = " << strerror(errno)
-                    << " client: " << *client;
+        if(!req) {
+            TAO_LOG_DEBUG(g_logger) << "recv http request fail, errno="
+                << errno << " errstr=" << strerror(errno)
+                << " cliet:" << *client << " keep_alive=" << m_isKeepalive;
             break;
         }
-        HttpResponse::ptr rsp = std::make_shared<HttpResponse>(req->getVersion()
-                            ,req->isClose() || !m_isKeepalive);
+
+        HttpResponse::ptr rsp(new HttpResponse(req->getVersion()
+                            ,req->isClose() || !m_isKeepalive));
         rsp->setHeader("Server", getName());
-        //rsp->setBody("hello there");
         m_dispatch->handle(req, rsp, session);
         session->sendResponse(rsp);
 
-        if (!m_isKeepalive || req->isClose()) {
-            // std::cout << "m_isKeepalive = " << m_isKeepalive
-            //         << "request status = " << req->isClose() << std::endl;
+        if(!m_isKeepalive || req->isClose()) {
             break;
         }
-    } while (true);
+    } while(true);
     session->close();
 }
 }

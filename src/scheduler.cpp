@@ -7,7 +7,7 @@ namespace tao {
 
 static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
-//
+
 static thread_local Scheduler* t_scheduler = nullptr;
 static thread_local Fiber* t_scheduler_fiber = nullptr;
 
@@ -196,7 +196,7 @@ void Scheduler::run() {
                 schedule(ft.fiber); //reschedule
             } else if(ft.fiber->getState() != Fiber::TERM
                     && ft.fiber->getState() != Fiber::EXCEPT) {
-                ft.fiber->setState(Fiber::HOLD); //suspend
+                ft.fiber->setState(Fiber::HOLD); 
             }
             ft.reset();
         } else if(ft.cb) { //when task is defined in cb mode
@@ -244,7 +244,7 @@ void Scheduler::run() {
 }
 bool Scheduler::stopping() {
     MutexType::Lock lock(m_mutex);
-    return m_stopping && m_autoStop 
+    return m_autoStop && m_stopping
         && m_fibers.empty() && m_activeThreadCount == 0;
 }
 
@@ -258,5 +258,6 @@ void Scheduler::idle() {
 void Scheduler::setThis() {
     t_scheduler = this;
 }
+
 
 }

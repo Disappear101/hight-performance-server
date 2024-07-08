@@ -93,7 +93,7 @@ size_t http_parser_execute(http_parser *parser, const char *buffer, size_t len, 
   if(len == 0) return 0;
   parser->nread = 0;
   parser->mark = 0;
-  parser->field_len = len;
+  parser->field_len = 0;
   parser->field_start = 0;
  
   const char *p, *pe;

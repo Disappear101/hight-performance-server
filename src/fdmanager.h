@@ -28,7 +28,7 @@ public:
     bool getSysNonBlock() const { return m_sysNonblock;}
 
     void setTimeout(int type, uint64_t v);
-    uint32_t getTimeout(int type);
+    uint64_t getTimeout(int type);
 
 private:
     bool m_isInit = true;

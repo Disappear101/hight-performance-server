@@ -228,6 +228,8 @@ private:
     volatile std::atomic_flag m_mutex;
 };
 
+
+
 }
 
 #endif

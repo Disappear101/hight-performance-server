@@ -1,4 +1,5 @@
 #include "http.h"
+#include "../util.h"
 
 namespace tao {
 namespace http {
@@ -268,6 +269,8 @@ std::ostream &operator<<(std::ostream &os, const HttpResponse &rsp)
 {
     return rsp.dump(os);
 }
+
+
 
 }
 }

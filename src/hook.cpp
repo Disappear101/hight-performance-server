@@ -5,6 +5,7 @@
 #include "fdmanager.h"
 #include "config.h"
 #include "timer.h"
+#include "macro.h"
 #include <dlfcn.h>
 #include <cstdarg>
 
@@ -117,7 +118,7 @@ retry://socket io operation
     while (n == -1 && errno == EINTR) {//EINTR: interrupt. when it is interruptedm, retry
         n = fun(fd, std::forward<Args>(args)...);
     }
-    if (n == -1 && errno == EAGAIN) {//EAGAIN: io block
+    if (n == -1 && errno == EAGAIN) {//EAGAIN: data is not coming yet, try again
         tao::IOManager* iom = tao::IOManager::GetThis();
         tao::Timer::ptr timer;
         std::weak_ptr<timer_info> winfo(tinfo);
@@ -369,7 +370,7 @@ int close(int fd) {
     if (ctx) {
         auto iom = tao::IOManager::GetThis();
         if (iom) {
-            iom->cancleAll(fd);
+            iom->cancelAll(fd);
         }
     }
     return close_f(fd);
@@ -420,6 +421,9 @@ int fcntl(int fd, int cmd, ... /* arg */ ) {
                 return arg;
             }
             if(ctx->getSysNonBlock()) {
+                // if (!(arg & O_NONBLOCK)) {
+                //     fcntl_f(fd, cmd, arg | O_NONBLOCK);
+                // }
                 return arg | O_NONBLOCK;
             } else {
                 return arg & ~O_NONBLOCK;
@@ -475,6 +479,11 @@ int ioctl(int d, unsigned long int request, ...) {
     }
     return ioctl_f(d, request, arg);
 }
+
+
+
+
+
 
 }
 

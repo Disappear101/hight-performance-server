@@ -47,10 +47,10 @@ public:
     int addEvent(int fd, Event e, std::function<void()> cb = nullptr);
     //delete specified events
     bool delEvent(int fd, Event e);
-    //cancle specified events
+    //cancel specified events
     bool cancelEvent(int fd, Event e);
-    //cancle all events
-    bool cancleAll(int fd);
+    //cancel all events
+    bool cancelAll(int fd);
 
     static IOManager* GetThis();
 
@@ -72,6 +72,9 @@ private:
     std::vector<FdContext*> m_fdContexts;
 
 };
+
+
+
 }
 
 #endif

@@ -47,7 +47,7 @@ bool Timer::cancel() {
     return false;
 }
     
-bool Timer::refesh() {
+bool Timer::refresh() {
     TimerManager::RWMutexType::WriteLock lock(m_manager->m_mutex);
     if (!m_cb) {
         return false;
@@ -181,5 +181,6 @@ bool TimerManager::hasTimer() {
     RWMutexType::ReadLock lock(m_mutex);
     return !m_timers.empty();
 }
+
 
 }

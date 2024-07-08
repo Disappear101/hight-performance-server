@@ -40,7 +40,7 @@ Address::ptr Address::Create(const sockaddr* addr, socklen_t addrlen) {
             result.reset(new IPv6Address(*(const sockaddr_in6*)addr));
             break;
         default:
-            result.reset(new UnknowAddress(*addr));
+            result.reset(new UnknownAddress(*addr));
             break;
     }
     return result;
@@ -98,7 +98,7 @@ bool Address::Lookup(std::vector<Address::ptr>& result, const std::string& host,
     next = results;
     while(next) {
         result.push_back(Create(next->ai_addr, (socklen_t)next->ai_addrlen));
-        //SYLAR_LOG_INFO(g_logger) << ((sockaddr_in*)next->ai_addr)->sin_addr.s_addr;
+        //TAO_LOG_INFO(g_logger) << ((sockaddr_in*)next->ai_addr)->sin_addr.s_addr;
         next = next->ai_next;
     }
 
@@ -490,29 +490,31 @@ std::ostream &UnixAddress::insert(std::ostream &os) const
     return os << m_addr.sun_path;
 }
 
-UnknowAddress::UnknowAddress(int family) {
+UnknownAddress::UnknownAddress(int family) {
     memset(&m_addr, 0, sizeof(m_addr));
     m_addr.sa_family = family;
 }
-UnknowAddress::UnknowAddress(const sockaddr& addr) {
+UnknownAddress::UnknownAddress(const sockaddr& addr) {
     m_addr = addr;
 }
-UnknowAddress::~UnknowAddress() {
+UnknownAddress::~UnknownAddress() {
 
 }
-sockaddr* UnknowAddress::getAddr() const {
+sockaddr* UnknownAddress::getAddr() const {
     return (sockaddr*)&m_addr;
 }
-socklen_t UnknowAddress::getAddrLen() const {
+socklen_t UnknownAddress::getAddrLen() const {
     return sizeof(m_addr);
 }
-std::ostream& UnknowAddress::insert(std::ostream& os) const {
-    os << "[UnknownAddress family=" << m_addr.sa_family << "]";
+std::ostream& UnknownAddress::insert(std::ostream& os) const {
+    os << "[UnknownnAddress family=" << m_addr.sa_family << "]";
     return os;
 }
 std::ostream &operator<<(std::ostream &os, const Address &addr)
 {
     return addr.insert(os);
 }
+
+
 
 }
