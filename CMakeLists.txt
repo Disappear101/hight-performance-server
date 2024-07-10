@@ -21,6 +21,7 @@ find_library(PTHREAD pthread)
 
 set(LIB_SRC
     src/address.cpp
+    src/application.cpp
     src/daemon.cpp
     src/bytearray.cpp
     src/env.cpp
@@ -83,7 +84,7 @@ tao_add_executable(test_http_connection "tests/test_http_connection.cpp" tao "${
 tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
 tao_add_executable(load_test "tests/load_test.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_daemon "tests/test_daemon.cpp" tao "${LIB_LIB}")
-
+tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)

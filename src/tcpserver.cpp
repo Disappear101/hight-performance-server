@@ -1,5 +1,4 @@
 #include "tcpserver.h"
-#include "config.h"
 
 namespace tao {
 

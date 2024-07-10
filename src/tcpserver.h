@@ -6,8 +6,85 @@
 #include "iomanager.h"
 #include "socket.h"
 #include "noncopyable.h"
+#include "config.h"
 
 namespace tao {
+
+struct TcpServerConf {
+    using ptr = std::shared_ptr<TcpServerConf>;
+
+    std::vector<std::string> address;
+    int keepalive = 0;
+    int timeout = 1000 * 2 * 60;
+    std::string id;
+    std::string type = "http";
+    std::string name;
+    std::string accept_worker;
+    std::string process_worker;
+    std::map<std::string, std::string> args;
+
+    bool isValid() const {
+        return !address.empty();
+    } 
+
+    bool operator==(const TcpServerConf& oth) const {
+        return address == oth.address
+            && keepalive == oth.keepalive
+            && timeout == oth.timeout
+            && name == oth.name
+            && accept_worker == oth.accept_worker
+            && process_worker == oth.process_worker
+            && args == oth.args
+            && id == oth.id
+            && type == oth.type;
+    } 
+};
+
+template<>
+class Lexical_Cast<std::string, TcpServerConf> {
+public:
+    TcpServerConf operator()(const std::string&v) {
+        YAML::Node node = YAML::Load(v);
+        TcpServerConf conf;
+        conf.id = node["id"].as<std::string>(conf.id);
+        conf.type = node["type"].as<std::string>(conf.type);
+        conf.keepalive = node["keepalive"].as<int>(conf.keepalive);
+        conf.timeout = node["timeout"].as<int>(conf.timeout);
+        conf.name = node["name"].as<std::string>(conf.name);
+        conf.accept_worker = node["accept_worker"].as<std::string>();
+        conf.process_worker = node["process_worker"].as<std::string>();
+        conf.args = Lexical_Cast<std::string
+            ,std::map<std::string, std::string> >()(node["args"].as<std::string>(""));
+        if (node["address"].IsDefined()) {
+            // for (size_t i = 0; i < node["address"].size(); ++i) {
+            //     conf.address.push_back(node["address"][i].as<std::string>());
+            conf.address = Lexical_Cast<std::string, std::vector<std::string>>()(node["address"].as<std::string>());
+        }
+        return conf;
+    }
+};
+
+template<>
+class Lexical_Cast<TcpServerConf, std::string> {
+public:
+    std::string operator()(const TcpServerConf& conf) {
+        YAML::Node node;
+        node["id"] = conf.id;
+        node["type"] = conf.type;
+        node["name"] = conf.name;
+        node["keepalive"] = conf.keepalive;
+        node["timeout"] = conf.timeout;
+        node["accept_worker"] = conf.accept_worker;
+        node["process_worker"] = conf.process_worker;
+        node["args"] = YAML::Load(Lexical_Cast<std::map<std::string, std::string>, std::string>()(conf.args));
+        for(auto& i : conf.address) {
+            node["address"].push_back(i);
+        }
+        std::stringstream ss;
+        ss << node;
+        return ss.str();
+    }
+};
 
 class TcpServer : public std::enable_shared_from_this<TcpServer> 
                     , Noncopyable {

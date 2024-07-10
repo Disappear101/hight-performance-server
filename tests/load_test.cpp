@@ -12,7 +12,7 @@ void run() {
         return;
     }
 
-    tao::http::HttpServer::ptr http_server = std::make_shared<tao::http::HttpServer>(true);
+    tao::http::HttpServer::ptr http_server = std::make_shared<tao::http::HttpServer>(true, worker.get());
     while(!http_server->bind(addr)) {
         TAO_LOG_ERROR(g_logger) << "bind " << *addr << " fail";
         sleep(1);
@@ -23,7 +23,7 @@ void run() {
 
 int main(int argc, char** argv) {
     tao::IOManager iom(1);
-    //worker.reset(new tao::IOManager(4, false));
+    worker.reset(new tao::IOManager(4, false));
     iom.schedule(run);
     return 0;
 }

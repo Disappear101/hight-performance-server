@@ -152,7 +152,7 @@ std::string Env::getAbsoluteWorkPath(const std::string &path) const
 
 std::string Env::getConfigPath()
 {
-    return getAbsolutePath(get("c", "conf"));
+    return getAbsolutePath(get("c", "/conf"));
 }
 
 }

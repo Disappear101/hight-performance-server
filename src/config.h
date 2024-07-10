@@ -50,9 +50,8 @@ public:
 template<class T>
 class Lexical_Cast<std::vector<T>, std::string> {
 public:
-    std::string operator()(std::vector<T>& v) {
+    std::string operator()(const std::vector<T>& v) {
         YAML::Node node(YAML::NodeType::Sequence);
-        typename std::vector<T> vec;
         for (auto& i : v) {
             node.push_back(YAML::Load(Lexical_Cast<T, std::string>()(i)));
         }
@@ -173,7 +172,7 @@ public:
 template<class T>
 class Lexical_Cast<std::unordered_map<std::string, T>, std::string> {
 public:
-    std::string operator()( std::unordered_map<std::string, T>& v) {
+    std::string operator()(const std::unordered_map<std::string, T>& v) {
         YAML::Node node(YAML::NodeType::Map);
         for(auto& i : v) {
             node[i.first] = YAML::Load(Lexical_Cast<T, std::string>()(i.second));
@@ -205,7 +204,7 @@ public:
 template<class T>
 class Lexical_Cast<std::map<std::string, T>, std::string> {
 public:
-    std::string operator()(std::map<std::string, T>& v) {
+    std::string operator()(const std::map<std::string, T>& v) {
         YAML::Node node(YAML::NodeType::Map);
         for(auto& i : v) {
             node[i.first] = YAML::Load(Lexical_Cast<T, std::string>()(i.second));
