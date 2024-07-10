@@ -1,5 +1,14 @@
 # C/C++ High Performance Server
 
+## Performance Evaluation
+
+| Type | Number of Master | Number of Worker | KeepAlive | Concurrency Level | average-QPS | Failed Reqeusts | CPU Utilization(Master) | CPU Utilizarion(Worker) | 
+|----------|----------|----------|----------|----------|----------|----------|----------|----------|
+| this | 1 | 4 | false | 200 |  22145 | 0 | 48% | 35% |
+| Nginx | 1 | 4 | false | 200 | 20307 | 0 | 53% | 35% |
+| this | 1 | 4 | true | 200 |  115490 | 0 | - | 90% |
+| Nginx | 1 | 4 | true | 200 | 76106 | 0 | - | 93% |
+
 ## 1. Log Modular
 
 * **Support Multiple Information Field** 
