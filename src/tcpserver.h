@@ -56,9 +56,9 @@ public:
         conf.args = Lexical_Cast<std::string
             ,std::map<std::string, std::string> >()(node["args"].as<std::string>(""));
         if (node["address"].IsDefined()) {
-            // for (size_t i = 0; i < node["address"].size(); ++i) {
-            //     conf.address.push_back(node["address"][i].as<std::string>());
-            conf.address = Lexical_Cast<std::string, std::vector<std::string>>()(node["address"].as<std::string>());
+            for (size_t i = 0; i < node["address"].size(); ++i) {
+                conf.address.push_back(node["address"][i].as<std::string>());
+            }
         }
         return conf;
     }
