@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <string>
 #include "util.h"
+#include "log.h"
 
 /*__builtin_expect(long exp, long c): It indicates that the expression exp
  is expected to be equal to c most of the time. This hint helps the compiler

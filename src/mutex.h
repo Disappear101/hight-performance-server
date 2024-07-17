@@ -11,6 +11,7 @@
 #include <atomic>
 #include <list>
 #include "noncopyable.h"
+#include "fiber.h"
 
 namespace tao {
 
@@ -228,7 +229,25 @@ private:
     volatile std::atomic_flag m_mutex;
 };
 
+class Scheduler;
+class FiberSemaphore : Noncopyable {
+public:
+    using MutexType = SpinLock;
 
+    FiberSemaphore(size_t initial_concurrency = 0);
+    ~FiberSemaphore();
+
+    bool tryWait();
+    void wait();
+    void notify();
+
+    size_t getConcurrency() const { return m_concurrency;}
+    void reset() { m_concurrency = 0;}
+private:
+    MutexType m_mutex;
+    std::list<std::pair<Scheduler*, Fiber::ptr> > m_waiters;
+    size_t m_concurrency;
+};
 
 }
 

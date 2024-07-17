@@ -87,6 +87,12 @@ void TcpServer::stop()
         m_socks.clear();
     });
 }
+
+void TcpServer::setConf(const TcpServerConf &v)
+{
+    m_conf.reset(new TcpServerConf(v));
+}
+
 void TcpServer::handleClient(tao::Socket::ptr client)
 {
     TAO_LOG_INFO(g_logger) << "handleClient: " << *client;

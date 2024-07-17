@@ -63,6 +63,8 @@ public:
             tickle();
         }
     }
+
+    std::ostream& dump(std::ostream& os);
 protected:
     //wake up all
     virtual void tickle();

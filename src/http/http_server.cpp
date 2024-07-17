@@ -1,5 +1,6 @@
 #include "http_server.h"
 #include "../log.h"
+#include "src/http/servlets/status_servlet.h"
 
 namespace tao {
 namespace http {
@@ -13,6 +14,7 @@ tao::http::HttpServer::HttpServer(bool keepalive, tao::IOManager *worker, tao::I
     m_dispatch.reset(new ServletDispatch);
 
     m_type = "http";   
+    m_dispatch->addServlet("/_/status", std::make_shared<StatusServlet>());
 }
 
 void HttpServer::handleClient(tao::Socket::ptr client)

@@ -8,6 +8,7 @@
 #include "env.h"
 #include "log.h"
 #include "http/http_server.h"
+#include "worker.h"
 
 namespace tao {
 
@@ -87,7 +88,6 @@ bool Application::run()
 {
     bool is_daemon = tao::EnvMgr::GetInstance()->has("d");
     return start_daemon(m_argc, m_argv, std::bind(&Application::main, this, std::placeholders::_1, std::placeholders::_2), is_daemon);
-    return false;
 }
 bool Application::getSever(const std::string &type, std::vector<TcpServer::ptr> &svrs)
 {
@@ -116,13 +116,15 @@ int Application::main(int argc, char **argv)
     m_mainIOManager.reset(new tao::IOManager(1, true, "main"));
     m_mainIOManager->schedule(std::bind(&Application::run_fiber, this));
     m_mainIOManager->addTimer(2000, [](){
-        TAO_LOG_INFO(g_logger) << "hello";
+        //TAO_LOG_INFO(g_logger) << "hello";
     }, true);
     m_mainIOManager->stop();
     return 0;
 }
 int Application::run_fiber()
 {
+    tao::WorkerMgr::GetInstance()->init();
+
     auto http_confs = g_servers_conf->getValue();
     std::vector<TcpServer::ptr> svrs;
     for(auto& i : http_confs) {
@@ -162,13 +164,39 @@ int Application::run_fiber()
             TAO_LOG_ERROR(g_logger) << "invalid address: " << a;
             _exit(0);
         }
+
+        IOManager* accept_worker = tao::IOManager::GetThis();
+        IOManager* process_worker = tao::IOManager::GetThis();
+        if (!i.accept_worker.empty() && i.accept_worker != "caller") {
+            accept_worker = tao::WorkerMgr::GetInstance()->getAsIOManager(i.accept_worker).get();
+            if (!accept_worker) {
+                TAO_LOG_ERROR(g_logger) << "accept_worker: " << i.accept_worker
+                    << " not exists";
+                _exit(0);
+            }
+        }
+        if (!i.process_worker.empty() && i.process_worker != "caller") {
+            process_worker = tao::WorkerMgr::GetInstance()->getAsIOManager(i.process_worker).get();
+            if (!process_worker) {
+                TAO_LOG_ERROR(g_logger) << "process_worker: " << i.process_worker
+                    << " not exists";
+                _exit(0);
+            }
+        }
+
         TcpServer::ptr server;
         if (i.type == "http") {
-            server.reset(new tao::http::HttpServer(i.keepalive));
+            server.reset(new tao::http::HttpServer(i.keepalive, process_worker, accept_worker));
+        } else if (i.type == "tcp") {
+            server = std::make_shared<TcpServer>(process_worker, accept_worker);
         } else {
             TAO_LOG_ERROR(g_logger) << "invalid server type=" << i.type
             << Lexical_Cast<TcpServerConf, std::string>()(i);
             _exit(0);
+        }
+
+        if (!i.name.empty()) {
+            server->setName(i.name);
         }
 
         std::vector<Address::ptr>fails;
@@ -179,6 +207,8 @@ int Application::run_fiber()
             }
             _exit(0);
         }
+
+        server->setConf(i);
         m_servers[i.type].push_back(server);
         svrs.push_back(server);
     }

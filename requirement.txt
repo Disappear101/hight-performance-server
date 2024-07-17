@@ -1,3 +1,8 @@
+#os ubuntu 22
+
+#c/c++ environment
+sudo apt-get install build-essential
+
 #boost
 sudo apt-get install libboost-all-dev
 
@@ -7,7 +12,7 @@ cd yaml-cpp/
 cmake -S . -B build
 cd build
 sudo make & make install
-
+f
 #ragel
 sudo apt install ragel
 
@@ -20,13 +25,16 @@ sudo apt install libjsoncpp-dev
 #zookeeper
 sudo apt install maven
 sudo apt install openjdk-11-jdk
-wget https://downloads.apache.org/zookeeper/zookeeper-3.9.2/apache-zookeeper-3.9.2-bin.tar.gz
-cd zookeeper/apache-zookeeper-3.9.2/zookeeper-jute/
-mvn compile
+wget https://downloads.apache.org/zookeeper/zookeeper-3.9.2/apache-zookeeper-3.9.2.tar.gz
+tar -xzvf apache-zookeeper-3.9.2.tar.gz
+cd apache-zookeeper-3.9.2/zookeeper-jute/
+sudo mvn compile
 cd zookeeper/apache-zookeeper-3.9.2/zookeeper-cleint/zookeeper-client-c/
-autoreconf -if
-./configure
-make -j4
+sudo apt install -y pkg-config
+sudo apt install -y libcppunit-dev
+sudo autoreconf -if
+sudo ./configure
+sudo make -j4
 
 #hiredis-vip
 git clone https://github.com/vipshop/hiredis-vip.git
@@ -46,6 +54,10 @@ sudo apt install libjemalloc-dev
 
 #sqlite3
 sudo apt install libsqlite3-dev
+
+#protobuf
+sudo apt install -y protobuf-compiler
+sudo apt install -y libprotobuf-dev
 
 
 

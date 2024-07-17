@@ -334,14 +334,12 @@ void FileLogAppender::log(std::shared_ptr<Logger>logger, LogLevel::Level level, 
             m_lastTime = now;
         }
         MutexType::Lock lock(m_mutex);
-        if (!m_filestream.is_open()) std::cerr << "Failed to open file." << std::endl;
-        if (m_filestream.bad()) std::cerr << "I/O error while reading/writing to file." << std::endl;
+        // if (!m_filestream.is_open()) std::cerr << "Failed to open file." << std::endl;
+        // if (m_filestream.bad()) std::cerr << "I/O error while reading/writing to file." << std::endl;
+        // if (m_filestream.fail()) std::cerr << "Logical error on I/O operation." << std::endl;
+        // if (m_filestream.eof()) std::cerr << "End of file reached unexpectedly." << std::endl;
 
-        if (m_filestream.fail()) std::cerr << "Logical error on I/O operation." << std::endl;
-
-        if (m_filestream.eof()) std::cerr << "End of file reached unexpectedly." << std::endl;
-
-        if (!(m_filestream << m_formatter->format(logger, level, event))) {
+        if (!m_formatter->format(m_filestream, logger, level, event)) {
             std::cout << "error" << std::endl;
         }
     }
@@ -406,6 +404,14 @@ std::string LogFormatter::format(std::shared_ptr<Logger>logger, LogLevel::Level 
     }
     return ss.str();
 }
+
+std::ostream& LogFormatter::format(std::ostream& ofs, std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) {
+    for(auto& i : m_items) {
+        i->format(ofs, logger, level, event);
+    }
+    return ofs;
+}
+
 //%xxx %xxx(xxx) %%
 void LogFormatter::init(){
     //str, format, type

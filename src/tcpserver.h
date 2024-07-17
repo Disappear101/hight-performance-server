@@ -108,7 +108,11 @@ public:
 
     bool isStop() const { return m_isStop;};
 
+    TcpServerConf::ptr getConf() const { return m_conf;}
+    void setConf(TcpServerConf::ptr v) { m_conf = v;}
+    void setConf(const TcpServerConf& v);
     //void stop();
+
 
 protected:
     virtual void handleClient(tao::Socket::ptr client);
@@ -122,7 +126,7 @@ protected:
     std::string m_name;                     //name
     std::string m_type = "tcp";             //type
     bool m_isStop;
-
+    TcpServerConf::ptr m_conf;              //tcpserver config 
 };
 
 }

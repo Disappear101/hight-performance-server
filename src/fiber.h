@@ -5,7 +5,6 @@
 #include <memory>
 #include <functional>
 #include <stdint.h>
-#include "mutex.h"
 #include "util.h"
 
 
