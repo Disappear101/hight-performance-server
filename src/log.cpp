@@ -5,6 +5,7 @@
 #include <set>
 #include <functional>
 #include "env.h"
+#include "util.h"
 
 
 namespace tao {
@@ -350,9 +351,7 @@ bool FileLogAppender::reopen(){
     if (m_filestream) {
         m_filestream.close();
     }
-    m_filestream.open(m_filename);
-
-    return !!m_filestream;
+    return FSUtil::OpenForWrite(m_filestream, m_filename, std::ios::app);
 }
 
 std::string FileLogAppender::toYamlString() {

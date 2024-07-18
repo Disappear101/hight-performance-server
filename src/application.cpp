@@ -9,6 +9,7 @@
 #include "log.h"
 #include "http/http_server.h"
 #include "worker.h"
+#include "module.h"
 
 namespace tao {
 
@@ -56,10 +57,23 @@ bool Application::init(int argc, char **argv)
     TAO_LOG_INFO(g_logger) << "load conf path:" << conf_path;
     tao::Config::LoadFromConfDir(conf_path);
 
+    ModuleMgr::GetInstance()->init();
+    std::vector<Module::ptr> modules;
+    ModuleMgr::GetInstance()->listAll(modules);
+
+    for(auto i : modules) {
+        i->onBeforeArgsParse(argc, argv);
+    }
+
     if(is_print_help) {
         tao::EnvMgr::GetInstance()->printHelp();
         return false;
     }
+
+    for(auto i : modules) {
+        i->onAfterArgsParse(argc, argv);
+    }
+    modules.clear();
 
     int run_type = 0;
     if(tao::EnvMgr::GetInstance()->has("s")) {
@@ -125,8 +139,22 @@ int Application::main(int argc, char **argv)
 }
 int Application::run_fiber()
 {
-    tao::WorkerMgr::GetInstance()->init();
+    std::vector<Module::ptr> modules;
+    ModuleMgr::GetInstance()->listAll(modules);
+    bool has_error = false;
+    for(auto& i : modules) {
+        if(!i->onLoad()) {
+            TAO_LOG_ERROR(g_logger) << "module name="
+                << i->getName() << " version=" << i->getVersion()
+                << " filename=" << i->getFilename();
+            has_error = true;
+        }
+    }
+    if(has_error) {
+        _exit(0);
+    }
 
+    tao::WorkerMgr::GetInstance()->init();
     auto http_confs = g_servers_conf->getValue();
     std::vector<TcpServer::ptr> svrs;
     for(auto& i : http_confs) {
@@ -215,8 +243,16 @@ int Application::run_fiber()
         svrs.push_back(server);
     }
 
+    for(auto& i : modules) {
+        i->onServerReady();
+    }
+
     for (auto& i : svrs) {
         i->start();
+    }
+
+    for(auto& i : modules) {
+        i->onServerUp();
     }
 
     return 0;
