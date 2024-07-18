@@ -19,7 +19,8 @@ namespace=$2
 
 command_error_exit mkdir $project_name
 command_error_exit cd $project_name
-command_error_exit git clone https://github.com/Disappear101/hight-performance-server.git
+command_error_exit git submodule add https://github.com/Disappear101/hight-performance-server.git .
+#command_error_exit git clone https://github.com/Disappear101/hight-performance-server.git
 command_error_exit cp hight-performance-server/Makefile .
 command_error_exit cp -rf hight-performance-server/template/* .
 command_error_exit cp -rf hight-performance-server/template/* .

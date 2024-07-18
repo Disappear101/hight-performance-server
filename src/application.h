@@ -9,7 +9,7 @@ class Application {
 public:
     Application();
 
-    //static Application* GetInstance() { return s_instance;}
+    static Application* GetInstance() { return s_instance;}
 
     bool init(int argc, char** argv);
 
@@ -27,7 +27,7 @@ private:
 
     std::map<std::string, std::vector<TcpServer::ptr> > m_servers;
     IOManager::ptr m_mainIOManager;
-    //static Application* s_instance;
+    static Application* s_instance;
 };
 
 }

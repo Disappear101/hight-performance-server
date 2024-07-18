@@ -12,9 +12,10 @@ set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++17 -Wall -
 include_directories(.)
 include_directories(/usr/local/include)
 #include_directories(/apps/tao/include)
-
 link_directories(/usr/local/lib)
 #link_directories(/apps/tao/lib)
+
+option(BUILD_TEST "ON for complile test" OFF)
 
 find_library(YAMLCPP yaml-cpp)
 find_library(PTHREAD pthread)
@@ -47,6 +48,10 @@ set(LIB_SRC
     src/fdmanager.cpp
     src/iomanager.cpp
     src/hook.cpp
+    src/worker.cpp
+    src/module.cpp
+    src/protocol.cpp
+    src/library.cpp
 )
 
 ragelmaker(src/http/http11_parser.rl LIB_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/http)
@@ -63,6 +68,7 @@ set(LIB_LIB
     dl
     )
 
+if(BUILD_TEST)
 tao_add_executable(test_log "tests/test_log.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_config "tests/test_config.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_thread "tests/test_thread.cpp" tao "${LIB_LIB}")
@@ -85,6 +91,12 @@ tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
 tao_add_executable(load_test "tests/load_test.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_daemon "tests/test_daemon.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
+endif()
+
+tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
+tao_add_executable(bin_tao "src/main.cpp" tao "${LIB_LIB}")
+set_target_properties(bin_tao PROPERTIES OUTPUT_NAME "tao")
+
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-set(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

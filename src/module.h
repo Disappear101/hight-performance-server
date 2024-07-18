@@ -62,6 +62,40 @@ protected:
     std::string m_id;
     uint32_t m_type;
 };
+
+class ModuleManager {
+public:
+    typedef RWMutex RWMutexType;
+
+    ModuleManager();
+
+    void add(Module::ptr m);
+    void del(const std::string& name);
+    void delAll();
+
+    void init();
+
+    Module::ptr get(const std::string& name);
+
+    void onConnect(Stream::ptr stream);
+    void onDisconnect(Stream::ptr stream);
+
+    void listAll(std::vector<Module::ptr>& ms);
+    void listByType(uint32_t type, std::vector<Module::ptr>& ms);
+    void foreach(uint32_t type, std::function<void(Module::ptr)> cb);
+private:
+    void initModule(const std::string& path);
+private:
+    RWMutexType m_mutex;
+    std::unordered_map<std::string, Module::ptr> m_modules;
+    std::unordered_map<uint32_t
+        ,std::unordered_map<std::string, Module::ptr> > m_type2Modules;
+};
+
+using ModuleMgr = tao::Singleton<ModuleManager>;
+
+
+
 }
 
 #endif

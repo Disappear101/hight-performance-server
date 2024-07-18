@@ -25,9 +25,11 @@ static tao::ConfigVar<std::string>::ptr g_server_pid_file =
 static tao::ConfigVar<std::vector<TcpServerConf> >::ptr g_servers_conf = 
     tao::Config::Lookup("servers", std::vector<TcpServerConf>(), "http server config");
 
+Application* Application::s_instance = nullptr;
+
 Application::Application()
 {
-    //s_instance = this;
+    s_instance = this;
 }
 
 bool Application::init(int argc, char **argv)
