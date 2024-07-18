@@ -32,7 +32,7 @@ if(OPENSSL_FOUND)
 endif()
 
 set(LIB_SRC
-        template/my_module.cc
+        template/my_module.cpp
     )
 
 #PROTOBUF_GENERATE_CPP(PB_SRCS PB_HDRS sylar/test.proto)
