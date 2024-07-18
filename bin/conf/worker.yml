@@ -1,0 +1,5 @@
+workers:
+    # accept:
+    #     thread_num: 1
+    worker:
+        thread_num: 4

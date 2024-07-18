@@ -1,0 +1,8 @@
+servers:
+    - address: ["0.0.0.0:8888"]
+      keepalive: 1
+      timeout: 1000
+      name: tao/1.1
+      accept_worker: caller
+      process_worker:  worker
+      type: http
