@@ -43,7 +43,7 @@ bool Application::init(int argc, char **argv)
     tao::EnvMgr::GetInstance()->addHelp("c", "conf path default: ./conf");
     tao::EnvMgr::GetInstance()->addHelp("p", "print help");
 
-    bool is_print_help = false;
+    bool is_print_help = false; 
 
     if (!tao::EnvMgr::GetInstance()->init(argc, argv)) {
         is_print_help = true;

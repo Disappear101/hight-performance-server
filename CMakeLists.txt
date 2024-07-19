@@ -93,7 +93,6 @@ tao_add_executable(test_daemon "tests/test_daemon.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
 endif()
 
-tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
 tao_add_executable(bin_tao "src/main.cpp" tao "${LIB_LIB}")
 set_target_properties(bin_tao PROPERTIES OUTPUT_NAME "tao")
 
