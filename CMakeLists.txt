@@ -17,6 +17,11 @@ link_directories(/usr/local/lib)
 
 option(BUILD_TEST "ON for complile test" OFF)
 
+find_package(ZLIB REQUIRED)
+if(ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIR})
+endif()
+
 find_library(YAMLCPP yaml-cpp)
 find_library(PTHREAD pthread)
 
@@ -35,6 +40,7 @@ set(LIB_SRC
     src/http/servlet.cpp
     src/socket.cpp
     src/streams/socket_stream.cpp
+    src/streams/zlib_stream.cpp
     src/stream.cpp
     src/log.cpp
     src/util.cpp
@@ -63,6 +69,7 @@ force_redefine_file_macro_for_sources(tao)
 
 set(LIB_LIB
     tao
+    ${ZLIB_LIBRARIES}
     pthread
     ${YAMLCPP}
     dl
