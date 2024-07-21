@@ -107,7 +107,12 @@ bool Application::run()
 }
 bool Application::getSever(const std::string &type, std::vector<TcpServer::ptr> &svrs)
 {
-    return false;
+    auto it = m_servers.find(type);
+    if(it == m_servers.end()) {
+        return false;
+    }
+    svrs = it->second;
+    return true;
 }
 void Application::listAllSever(std::map<std::string, std::vector<TcpServer::ptr>> &servers)
 {
