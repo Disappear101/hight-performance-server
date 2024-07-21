@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <type_traits>
 
-namespace {
+namespace tao {
 
 /*
 template metaprogramming combined with type traits and conditional compilation.
