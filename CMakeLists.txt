@@ -109,6 +109,7 @@ tao_add_executable(test_uri "tests/test_uri.cpp" tao "${LIB_LIB}")
 tao_add_executable(load_test "tests/load_test.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_daemon "tests/test_daemon.cpp" tao "${LIB_LIB}")
 tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}")
+tao_add_executable(test_ws_server "tests/test_ws_server.cpp" tao "${LIB_LIB}")
 endif()
 
 tao_add_executable(bin_tao "src/main.cpp" tao "${LIB_LIB}")

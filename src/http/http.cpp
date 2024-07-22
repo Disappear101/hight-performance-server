@@ -69,7 +69,8 @@ HttpRequest::HttpRequest(uint32_t version, bool close)
 }
 std::shared_ptr<HttpResponse> HttpRequest::createResponse()
 {
-    return std::shared_ptr<HttpResponse>();
+    HttpResponse::ptr rsp = std::make_shared<HttpResponse>(getVersion(), isClose());
+    return rsp;
 }
 
 std::string HttpRequest::getHeader(const std::string &key, const std::string &def) const

@@ -7,8 +7,11 @@ namespace http {
 static tao::Logger::ptr g_logger = TAO_LOG_NAME("system");
 
 WSServer::WSServer(tao::IOManager *worker, tao::IOManager *accept_worker)
-    :TcpServer(worker, accept_worker){
+    :TcpServer(worker, accept_worker)
+    ,m_dispatch(std::make_shared<WSServletDispatch>()){
+    m_type = "ws";
 }
+
 void WSServer::handleClient(Socket::ptr client)
 {
     TAO_LOG_DEBUG(g_logger) << "handleClient " << *client;
