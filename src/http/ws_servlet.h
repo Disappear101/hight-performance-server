@@ -2,7 +2,6 @@
 #define __HTTP_WS_SERVLET_H__
 
 #include "src/http/servlet.h"
-#include "src/http/ws_server.h"
 #include "src/http/ws_session.h"
 
 namespace tao {
@@ -35,7 +34,7 @@ protected:
 
 class FunctionWSServlet : public WSServlet {
 public:
-    using ptr = std::shared_ptr<FunctionWSServlet> ;
+    using ptr = std::shared_ptr<FunctionWSServlet>;
     using on_connect_cb = std::function<int32_t (tao::http::HttpRequest::ptr header
                               ,tao::http::WSSession::ptr session)>;
     using on_close_cb = std::function<int32_t (tao::http::HttpRequest::ptr header
@@ -63,8 +62,8 @@ protected:
 
 class WSServletDispatch : public ServletDispatch {
 public:
-    using ptr = std::shared_ptr<WSServletDispatch> ;
-    using RWMutexType = RWMutex ;
+    using ptr = std::shared_ptr<WSServletDispatch>;
+    using RWMutexType = RWMutex;
 
     WSServletDispatch();
     void addServlet(const std::string& uri

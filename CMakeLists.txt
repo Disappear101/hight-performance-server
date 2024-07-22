@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++17 -Wall -
 
 include_directories(.)
 include_directories(/usr/local/include)
+include_directories(/usr/include/openssl)
 #include_directories(/apps/tao/include)
 link_directories(/usr/local/lib)
 #link_directories(/apps/tao/lib)
@@ -20,6 +21,11 @@ option(BUILD_TEST "ON for complile test" OFF)
 find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIR})
+endif()
+
+find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+    include_directories(${OPENSSL_INCLUDE_DIR})
 endif()
 
 find_library(YAMLCPP yaml-cpp)
@@ -36,12 +42,16 @@ set(LIB_SRC
     src/http/http_session.cpp
     src/http/http_server.cpp
     src/http/http_connection.cpp
+    src/http/ws_session.cpp
+    src/http/ws_server.cpp
     src/http/servlets/status_servlet.cpp
+    src/http/ws_servlet.cpp
     src/http/servlet.cpp
     src/socket.cpp
     src/streams/socket_stream.cpp
     src/streams/zlib_stream.cpp
     src/stream.cpp
+    src/utils/hash_util.cpp
     src/log.cpp
     src/util.cpp
     src/config.cpp
@@ -70,6 +80,7 @@ force_redefine_file_macro_for_sources(tao)
 set(LIB_LIB
     tao
     ${ZLIB_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
     pthread
     ${YAMLCPP}
     dl

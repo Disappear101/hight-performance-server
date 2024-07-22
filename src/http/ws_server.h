@@ -3,7 +3,7 @@
 
 #include "src/tcpserver.h"
 #include "ws_session.h"
-#include "servlets/ws_servlet.h"
+#include "ws_servlet.h" 
 
 namespace tao {
 namespace http {
@@ -23,9 +23,7 @@ protected:
     WSServletDispatch::ptr m_dispatch;
 };
 
-}
+} // namespace http
+} // namespace tao
 
-}
-
-#endif
- 
+#endif // __TAO_HTTP_WS_SERVER_H__

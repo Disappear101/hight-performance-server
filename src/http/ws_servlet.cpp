@@ -1,4 +1,5 @@
 #include "ws_servlet.h"
+#include "src/http/ws_server.h"
 
 namespace tao {
 namespace http {
