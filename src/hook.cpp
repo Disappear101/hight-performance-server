@@ -107,7 +107,7 @@ static ssize_t do_io(int fd, OriginFun fun, const char* hook_fun_name,
     int flags = fcntl_f(fd, F_GETFL, 0);
     if (!(flags & O_NONBLOCK)) {
         fcntl_f(fd, F_SETFL, flags | O_NONBLOCK);//set as non-block
-        TAO_LOG_DEBUG(g_logger) << "Socket is reset as non-blocking";
+        TAO_LOG_DEBUG(g_logger) << "Socket is reset as non-blocking";//trigger, when reconnection is happening
     }
 
     uint64_t to = ctx->getTimeout(timeout_so);

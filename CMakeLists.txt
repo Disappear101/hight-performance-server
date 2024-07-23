@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} -rdynamic -O3 -fPIC -ggdb -std=c++17 -Wall -
 include_directories(.)
 include_directories(/usr/local/include)
 include_directories(/usr/include/openssl)
+include_directories(/usr/include/jsoncpp)
 #include_directories(/apps/tao/include)
 link_directories(/usr/local/lib)
 #link_directories(/apps/tao/lib)
@@ -52,6 +53,7 @@ set(LIB_SRC
     src/streams/zlib_stream.cpp
     src/stream.cpp
     src/utils/hash_util.cpp
+    src/utils/json_util.cpp
     src/log.cpp
     src/util.cpp
     src/config.cpp
@@ -79,6 +81,7 @@ force_redefine_file_macro_for_sources(tao)
 
 set(LIB_LIB
     tao
+    jsoncpp
     ${ZLIB_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     pthread

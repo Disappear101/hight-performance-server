@@ -15,6 +15,8 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include "utils/json_util.h"
+#include "utils/hash_util.h"
 
 namespace tao {
 
@@ -112,6 +114,17 @@ bool CheckGetParamValue(const Map& m, const K& k, V& v) {
     }
     return false;
 }
+
+/// @brief wrap the type conversion
+class TypeUtil {
+public:
+    static int8_t ToChar(const std::string& str);
+    static int64_t Atoi(const std::string& str);
+    static double Atof(const std::string& str);
+    static int8_t ToChar(const char* str);
+    static int64_t Atoi(const char* str);
+    static double Atof(const char* str);
+};
 
 }
 
