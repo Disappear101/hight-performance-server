@@ -1,7 +1,8 @@
 #ifndef __TAO_APPLICATION_H__
 #define __TAO_APPLICATION_H__
 
-#include "tcpserver.h"
+#include "http/http_server.h"
+#include "http/ws_server.h"
 
 namespace tao {
 

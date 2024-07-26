@@ -8,6 +8,7 @@
 #include "env.h"
 #include "log.h"
 #include "http/http_server.h"
+#include "http/ws_server.h"
 #include "worker.h"
 #include "module.h"
 
@@ -224,6 +225,9 @@ int Application::run_fiber()
             server.reset(new tao::http::HttpServer(i.keepalive, process_worker, accept_worker));
         } else if (i.type == "tcp") {
             server = std::make_shared<TcpServer>(process_worker, accept_worker);
+        } else if (i.type == "ws") {
+            server.reset(new tao::http::WSServer(process_worker, accept_worker));
+            //server = std::make_shared<tao::http::WSServer>(process_worker, accept_worker);
         } else {
             TAO_LOG_ERROR(g_logger) << "invalid server type=" << i.type
             << Lexical_Cast<TcpServerConf, std::string>()(i);
