@@ -514,6 +514,8 @@ double  TypeUtil::Atof(const char* str) {
     return atof(str);
 }
 
+template<class T>
+void nop(T*) {}
 
 
 }

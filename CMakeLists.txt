@@ -37,6 +37,7 @@ set(LIB_SRC
     src/application.cpp
     src/daemon.cpp
     src/bytearray.cpp
+    src/db/mysql.cpp
     src/env.cpp
     src/http/http.cpp
     src/http/http_parser.cpp
@@ -87,6 +88,7 @@ set(LIB_LIB
     pthread
     ${YAMLCPP}
     dl
+    mysqlclient
     )
 
 if(BUILD_TEST)
@@ -115,6 +117,7 @@ tao_add_executable(test_application "tests/test_application.cpp" tao "${LIB_LIB}
 tao_add_executable(test_ws_server "tests/test_ws_server.cpp" tao "${LIB_LIB}")
 endif()
 
+tao_add_executable(test_db_mysql "tests/test_db_mysql.cpp" tao "${LIB_LIB}")
 tao_add_executable(bin_tao "src/main.cpp" tao "${LIB_LIB}")
 set_target_properties(bin_tao PROPERTIES OUTPUT_NAME "tao")
 
