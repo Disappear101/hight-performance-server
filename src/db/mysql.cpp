@@ -55,6 +55,43 @@ namespace {
     };
 }
 
+bool databaseExists(MYSQL *conn, const std::string &dbName) {
+    std::string query = "SHOW DATABASES LIKE '" + dbName + "'";
+    if (mysql_query(conn, query.c_str())) {
+        TAO_LOG_ERROR(g_logger) << "SHOW DATABASES LIKE failed. Error: " << mysql_error(conn) << "\n";
+        return false;
+    }
+    
+    MYSQL_RES *res = mysql_store_result(conn);
+    if (res == nullptr) {
+        TAO_LOG_ERROR(g_logger) << "mysql_store_result() failed. Error: " << mysql_error(conn) << "\n";
+        return false;
+    }
+    
+    bool exists = mysql_num_rows(res) > 0;
+    mysql_free_result(res);
+    return exists;
+}
+
+bool createDatabase(MYSQL *conn, const std::string &dbName) {
+    std::string query = "CREATE DATABASE " + dbName;
+    if (mysql_query(conn, query.c_str())) {
+        std::cerr << "CREATE DATABASE failed. Error: " << mysql_error(conn) << "\n";
+        return false;
+    }
+    return true;
+}
+
+bool useDatabase(MYSQL *conn, const std::string &dbName) {
+    std::string query = "USE " + dbName;
+    if (mysql_query(conn, query.c_str())) {
+        TAO_LOG_ERROR(g_logger) << "USE " << dbName << " failed. Error: " << mysql_error(conn) << "\n";
+        return false;
+    }
+    return true;
+}
+
+
 MYSQL* create_connection(const std::map<std::string, std::string>& params, const int& timeout) {
     MYSQL* mysql = ::mysql_init(nullptr);
     if(mysql == nullptr) {
@@ -73,14 +110,26 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
     std::string password = tao::GetParamValue<std::string>(params, "password");
     std::string dbname = tao::GetParamValue<std::string>(params, "dbname");
 
-    if(mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str()
-                          ,dbname.c_str(), port, NULL, 0) == nullptr) {
+    if (mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(), NULL, port, NULL, 0) == NULL) {
         TAO_LOG_ERROR(g_logger) << "mysql_real_connect(" << host
-                                  << ", " << port << ", " << dbname
                                   << ") error: " << mysql_error(mysql);
         mysql_close(mysql);
         return nullptr;
     }
+
+    if (!dbname.empty()) {
+        if (!databaseExists(mysql, dbname)) {
+            TAO_LOG_ERROR(g_logger) << "Create Data Base:" << dbname;
+            createDatabase(mysql, dbname);
+        }
+
+        if (!useDatabase(mysql, dbname)) {
+            TAO_LOG_ERROR(g_logger) << "Failed to switch to database " << dbname;
+            mysql_close(mysql);
+            return nullptr;
+        }
+    }
+
     return mysql;
 }
 
