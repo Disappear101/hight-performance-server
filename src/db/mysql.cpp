@@ -43,7 +43,7 @@ bool time_t_to_mysql_time(const time_t &ts, MYSQL_TIME &mt)
 }
 
 namespace {
-
+    /// @brief This class ensures that MySQL's thread-specific resources are properly set up and released for each thread that interacts with the MySQL library. 
     struct MySQLThreadIniter {
         MySQLThreadIniter() {
             mysql_thread_init();
@@ -55,11 +55,7 @@ namespace {
     };
 }
 
-static MYSQL* mysql_init(std::map<std::string, std::string>& params,
-                         const int& timeout) {
-
-    static thread_local MySQLThreadIniter s_thread_initer;
-
+MYSQL* create_connection(const std::map<std::string, std::string>& params, const int& timeout) {
     MYSQL* mysql = ::mysql_init(nullptr);
     if(mysql == nullptr) {
         TAO_LOG_ERROR(g_logger) << "mysql_init error";
@@ -69,17 +65,15 @@ static MYSQL* mysql_init(std::map<std::string, std::string>& params,
     if(timeout > 0) {
         mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
     }
-    bool close = false;
-    mysql_options(mysql, MYSQL_OPT_RECONNECT, &close);
     mysql_options(mysql, MYSQL_SET_CHARSET_NAME, "UTF8");
 
     int port = tao::GetParamValue(params, "port", 3306);
     std::string host = tao::GetParamValue<std::string>(params, "host");
     std::string user = tao::GetParamValue<std::string>(params, "user");
-    std::string passwd = tao::GetParamValue<std::string>(params, "passwd");
+    std::string password = tao::GetParamValue<std::string>(params, "password");
     std::string dbname = tao::GetParamValue<std::string>(params, "dbname");
 
-    if(mysql_real_connect(mysql, host.c_str(), user.c_str(), passwd.c_str()
+    if(mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str()
                           ,dbname.c_str(), port, NULL, 0) == nullptr) {
         TAO_LOG_ERROR(g_logger) << "mysql_real_connect(" << host
                                   << ", " << port << ", " << dbname
@@ -88,6 +82,24 @@ static MYSQL* mysql_init(std::map<std::string, std::string>& params,
         return nullptr;
     }
     return mysql;
+}
+
+
+MYSQL* mysql_init(std::map<std::string, std::string>& params,
+                         const int& timeout) {
+
+    static thread_local MySQLThreadIniter s_thread_initer;
+
+    return create_connection(params, timeout);
+}
+
+bool reconnect(MYSQL* &mysql, const std::map<std::string, std::string>& params, const int& timeout) {
+    if(mysql != nullptr && mysql_ping(mysql) == 0) {
+        return true;
+    }
+    mysql_close(mysql);
+    mysql = create_connection(params, timeout);
+    return mysql != nullptr;
 }
 
 MySQL::MySQL(const std::map<std::string, std::string>& args)
