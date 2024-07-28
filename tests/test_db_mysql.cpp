@@ -3,6 +3,7 @@
 #include "src/iomanager.h"
 #include "src/config.h"
 #include "src/util.h"
+#include "src/env.h"
 
 static int s_num = 40;
 
@@ -38,9 +39,10 @@ void run2() {
     TAO_LOG_DEBUG(g_logger) << "load conf files";
     tao::Config::LoadFromConfDir("/home/tao/projects/hight-performance-server/bin/conf");
     tao::MySQL::ptr mysql = tao::MySQLMgr::GetInstance()->get("chat1");
-    tao::MySQLStmt::ptr stmt = tao::MySQLStmt::Create(mysql, "UPDATE test set score = ? where id = 2");
+    tao::MySQLStmt::ptr stmt = tao::MySQLStmt::Create(mysql, "INSERT INTO t_table1 (f_id, f_score, f_create_time) VALUES (?, ?, NOW())");
     tao::MySQLTransaction::ptr tranc = tao::MySQLTransaction::Create(mysql, true);
-    stmt->bindInt32(1, 28);
+    stmt->bindInt32(1, 11);
+    stmt->bindInt32(2, 89);
     int rt = stmt->execute();
     std::cout << "rt=" << rt << std::endl;
     //tranc->rollback();
@@ -64,8 +66,9 @@ void run3() {
 }
 
 int main(int argc, char** argv) {
+    tao::EnvMgr::GetInstance()->init(argc, argv);
     tao::IOManager iom(1);
-    iom.schedule(run3);
+    iom.schedule(run2);
     //iom.addTimer(1000, run, true);
     return 0;
 }

@@ -2,6 +2,7 @@
 #include "src/log.h"
 #include "src/config.h"
 #include "src/util.h"
+#include "src/env.h"
 
 namespace tao {
 
@@ -109,6 +110,7 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
     std::string user = tao::GetParamValue<std::string>(params, "user");
     std::string password = tao::GetParamValue<std::string>(params, "password");
     std::string dbname = tao::GetParamValue<std::string>(params, "dbname");
+    std::string sqlfile = tao::GetParamValue<std::string>(params, "sqlfile");
 
     if (mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(), NULL, port, NULL, 0) == NULL) {
         TAO_LOG_ERROR(g_logger) << "mysql_real_connect(" << host
@@ -127,6 +129,22 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
             TAO_LOG_ERROR(g_logger) << "Failed to switch to database " << dbname;
             mysql_close(mysql);
             return nullptr;
+        }
+    }
+
+    //init databse
+    if (!sqlfile.empty()) {
+        std::string abs_path = EnvMgr::GetInstance()->getAbsolutePath(sqlfile);
+        std::ifstream file;
+        tao::FSUtil::OpenForRead(file, abs_path, std::ios_base::in);
+        std::stringstream fileStream;
+        fileStream << file.rdbuf();
+        std::string sql = fileStream.str();
+
+        int r = ::mysql_query(mysql, sql.c_str());
+        if(r) {
+            TAO_LOG_ERROR(g_logger) << "cmd=" << sql
+                << ", error: " << mysql_error(mysql);
         }
     }
 
