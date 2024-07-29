@@ -52,23 +52,14 @@ void run2() {
 void run3() {
     TAO_LOG_DEBUG(g_logger) << "load conf files";
     tao::Config::LoadFromConfDir("/home/tao/projects/hight-performance-server/bin/conf");
-    tao::MySQL::ptr mysql = tao::MySQLMgr::GetInstance()->get("chat1");
-    tao::MySQLTransaction::ptr tranc = tao::MySQLTransaction::Create(mysql, true);
-
-    std::ifstream file;
-    tao::FSUtil::OpenForRead(file, "/home/tao/projects/hight-performance-server/bin/sql/test.sql", std::ios_base::in);
-    std::stringstream fileStream;
-    fileStream << file.rdbuf();
-    std::string sql = fileStream.str();
-
-    //mysql->query(sql.c_str());
-    mysql->execute(sql);
+    tao::MySQLMgr::GetInstance()->executeFromFile("chat1", "/home/tao/projects/hight-performance-server/bin/sql/test.sql");
 }
+
 
 int main(int argc, char** argv) {
     tao::EnvMgr::GetInstance()->init(argc, argv);
     tao::IOManager iom(1);
-    iom.schedule(run2);
+    iom.schedule(run3);
     //iom.addTimer(1000, run, true);
     return 0;
 }

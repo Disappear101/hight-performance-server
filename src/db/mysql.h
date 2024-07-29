@@ -290,6 +290,7 @@ public:
     int execute(const std::string& name, const char* format, va_list ap);
     int execute(const std::string& name, const std::string& sql);
     int real_execute(const std::string& name, const std::string& sql);
+    int executeFromFile(const std::string& name, const std::string& filename);
 
     ISQLData::ptr query(const std::string& name, const char* format, ...);
     ISQLData::ptr query(const std::string& name, const char* format, va_list ap); 

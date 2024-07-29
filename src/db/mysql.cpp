@@ -56,6 +56,19 @@ namespace {
     };
 }
 
+std::vector<std::string> splitSQLStatements(const std::string& sql) {
+    std::vector<std::string> statements;
+    std::string statement;
+    std::istringstream stream(sql);
+    while (std::getline(stream, statement, ';')) {
+        if (!statement.empty()) {
+            statements.push_back(statement + ";");
+        }
+    }
+    return statements;
+}
+
+
 bool databaseExists(MYSQL *conn, const std::string &dbName) {
     std::string query = "SHOW DATABASES LIKE '" + dbName + "'";
     if (mysql_query(conn, query.c_str())) {
@@ -110,7 +123,6 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
     std::string user = tao::GetParamValue<std::string>(params, "user");
     std::string password = tao::GetParamValue<std::string>(params, "password");
     std::string dbname = tao::GetParamValue<std::string>(params, "dbname");
-    std::string sqlfile = tao::GetParamValue<std::string>(params, "sqlfile");
 
     if (mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(), NULL, port, NULL, 0) == NULL) {
         TAO_LOG_ERROR(g_logger) << "mysql_real_connect(" << host
@@ -129,22 +141,6 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
             TAO_LOG_ERROR(g_logger) << "Failed to switch to database " << dbname;
             mysql_close(mysql);
             return nullptr;
-        }
-    }
-
-    //init databse
-    if (!sqlfile.empty()) {
-        std::string abs_path = EnvMgr::GetInstance()->getAbsolutePath(sqlfile);
-        std::ifstream file;
-        tao::FSUtil::OpenForRead(file, abs_path, std::ios_base::in);
-        std::stringstream fileStream;
-        fileStream << file.rdbuf();
-        std::string sql = fileStream.str();
-
-        int r = ::mysql_real_query(mysql, sql.c_str(), sql.length());
-        if(r) {
-            TAO_LOG_ERROR(g_logger) << "cmd=" << sql
-                << ", error: " << mysql_error(mysql);
         }
     }
 
@@ -1172,6 +1168,42 @@ int MySQLManager::real_execute(const std::string &name, const std::string &sql)
             << ") fail, sql=" << sql;
     }
     return conn->real_execute(sql);
+}
+
+int MySQLManager::executeFromFile(const std::string &name, const std::string &filename)
+{
+    auto conn = get(name);
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        TAO_LOG_ERROR(g_logger) << "Could not open the file - '" << filename;
+        return -1;
+    }
+
+    std::string line;
+    std::string statement;
+    while (std::getline(file, line)) {
+        // Ignore comments and empty lines
+        if (line.empty() || line[0] == '#' || line.substr(0, 2) == "--") {
+            continue;
+        }
+
+        // Accumulate the lines into a single statement
+        statement += line;
+        // Check if the line ends with a semicolon
+        if (line.find(';') != std::string::npos) {
+            // Execute the accumulated statement
+            int rt = conn->execute(statement);
+            if (rt) {
+                TAO_LOG_ERROR(g_logger) << "MySQLManager::executeFromFile, get(" << name    
+                    << ") fail, sql=" << statement;
+                return rt;
+            }
+            // Clear the statement for the next one
+            statement.clear();
+        }
+    }
+
+    return 0;
 }
 
 ISQLData::ptr MySQLManager::query(const std::string& name, const char* format, ...) {
