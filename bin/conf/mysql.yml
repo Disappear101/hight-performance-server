@@ -5,4 +5,5 @@ mysql:
             user: root
             password: "123456" 
             dbname: chatdb 
+            sqlfile: sql/test.sql
     

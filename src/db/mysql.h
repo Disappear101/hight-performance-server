@@ -138,6 +138,8 @@ public:
     virtual int execute(const char* format, ...) override;
     int execute(const char* format, va_list ap);
     virtual int execute(const std::string& sql) override;
+    int real_execute(const std::string& sql);
+
     int64_t getLastInsertId() override;
     std::shared_ptr<MySQL> getMySQL();
     std::shared_ptr<MYSQL> getRaw();
@@ -287,6 +289,7 @@ public:
     int execute(const std::string& name, const char* format, ...);
     int execute(const std::string& name, const char* format, va_list ap);
     int execute(const std::string& name, const std::string& sql);
+    int real_execute(const std::string& name, const std::string& sql);
 
     ISQLData::ptr query(const std::string& name, const char* format, ...);
     ISQLData::ptr query(const std::string& name, const char* format, va_list ap); 

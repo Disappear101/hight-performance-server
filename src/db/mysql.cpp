@@ -256,6 +256,21 @@ int MySQL::execute(const std::string& sql) {
     return r;
 }
 
+int MySQL::real_execute(const std::string &sql)
+{
+    m_cmd = sql;
+    int r = ::mysql_real_query(m_mysql.get(), m_cmd.c_str(), m_cmd.length());
+    if(r) {
+        TAO_LOG_ERROR(g_logger) << "cmd=" << cmd()
+            << ", error: " << getErrStr();
+        m_hasError = true;
+    } else {
+        m_hasError = false;
+    }
+    return r;
+    return 0;
+}
+
 std::shared_ptr<MySQL> MySQL::getMySQL() {
     return MySQL::ptr(this);
 }
@@ -1147,6 +1162,16 @@ int MySQLManager::execute(const std::string& name, const std::string& sql) {
         return -1;
     }
     return conn->execute(sql);
+}
+
+int MySQLManager::real_execute(const std::string &name, const std::string &sql)
+{
+    auto conn = get(name);
+    if (!conn) {
+        TAO_LOG_ERROR(g_logger) << "MySQLManager::execute, get(" << name    
+            << ") fail, sql=" << sql;
+    }
+    return conn->real_execute(sql);
 }
 
 ISQLData::ptr MySQLManager::query(const std::string& name, const char* format, ...) {
