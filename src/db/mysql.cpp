@@ -141,7 +141,7 @@ MYSQL* create_connection(const std::map<std::string, std::string>& params, const
         fileStream << file.rdbuf();
         std::string sql = fileStream.str();
 
-        int r = ::mysql_query(mysql, sql.c_str());
+        int r = ::mysql_real_query(mysql, sql.c_str(), sql.length());
         if(r) {
             TAO_LOG_ERROR(g_logger) << "cmd=" << sql
                 << ", error: " << mysql_error(mysql);
