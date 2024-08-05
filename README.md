@@ -182,6 +182,8 @@ The purposes of customizing timer are:
 
 ## 7. IOManager
 
+IOManager inherits from Fiber scheduler and Time Manager, overiding idle, tickle and stopping method. The idle method has been implemented based on event loop(epoll_wait), with a specified timeout(maximun 3s). The tickle method is implemented based on a bidirectional pipe to generate a dummy event so that event loop can be woke up to schedule real task. The stopping method is to check whether the idle is stopping. In addition, IOManager implemented event management methods including addEvent, cancelEvent and delEvent.
+
 ## 8. Hook
 
 The hooked io operations was implemented to manage io in a customized way that io operations run under non-block mode and their fibers can be swapped out/in when io operations are waiting status/triggered status.
