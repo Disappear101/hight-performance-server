@@ -187,9 +187,16 @@ The purposes of customizing timer are:
 
 IOManager inherits from Fiber scheduler and Time Manager, overiding idle, tickle and stopping method. The idle method has been implemented based on event loop(epoll_wait), with a specified timeout(maximun 3s). The tickle method is implemented based on a bidirectional pipe to generate a dummy event so that event loop can be woke up to schedule real task. The stopping method is to check whether the idle is stopping. In addition, IOManager implemented io-specified event management methods including addEvent, cancelEvent and delEvent. 
 IOManager maintains a fdcontext vector used for add, delete, cancel and execute event corresponding fiber or callback function.
-![iomanager drawio](https://github.com/user-attachments/assets/e12df75b-77bb-4132-93cb-73f151dfbca5)
-The above figure showcase the io-specified event management flow(delete and cancel vice versa) and overided idle function.
 
+![iomanager drawio](https://github.com/user-attachments/assets/e12df75b-77bb-4132-93cb-73f151dfbca5)
+
+The above figure showcase the io-specified event management flow(delete and cancel vice versa) and overided idle function. Fd, event and callback function is the inputs of add event function used for registering event. 
+Management of event includes following steps:
+* update events and callback function/fiber of maintained fdcontext indexed by fd.
+* set epoll_event with updated events and updated fdcontext.
+* add epoll event to be handled.
+
+Idle state is epoll_wait used for waiting for events. Once events or epoll timeout is coming, idle function will proceed to execute expired timeout callback function, handle active events and then swap out to scheduler fiber.
 
 ## 8. Hook
 
