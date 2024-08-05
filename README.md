@@ -170,6 +170,8 @@ Every thread at least has two basic fibers and task fibers：
 
 ![scheduler state machine](https://github.com/Disappear101/hight-performance-server/assets/105203326/b2917b73-fed5-4812-abd5-8d3471697e08)
 
+The idea of fiber scheduler is similar with thread-pool
+![schedule drawio](https://github.com/user-attachments/assets/d4370105-31e6-4a9b-bf66-7da2cd0820cc)
 
 ## 6. Timer
 
