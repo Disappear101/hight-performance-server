@@ -206,6 +206,8 @@ The hooked io operations was implemented to manage io in a customized way that i
 
 
 ## 9. ByteArray
+![memory_pool drawio](https://github.com/user-attachments/assets/4a5876ce-a35c-41c4-b325-e733fd5d158e)
+
 
 ## 10.Http
 
