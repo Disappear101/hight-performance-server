@@ -210,6 +210,7 @@ The hooked io operations was implemented to manage io in a customized way that i
 
 
 ## 10.Http
+* The class diagram of the whole server architcture including httpserver, tcpserver and websocketserver.
 ![http_class_diagram drawio](https://github.com/user-attachments/assets/9a214311-549d-46a3-bda6-e0d81e8f8e5a)
 
 
