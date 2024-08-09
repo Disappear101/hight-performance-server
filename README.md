@@ -213,6 +213,10 @@ The hooked io operations was implemented to manage io in a customized way that i
 * The class diagram of the whole server architcture including httpserver, tcpserver and websocketserver.
 ![http_class_diagram drawio](https://github.com/user-attachments/assets/9a214311-549d-46a3-bda6-e0d81e8f8e5a)
 
-
+## References
+1. https://github.com/libevent/libevent
+2. https://github.com/sylar-yin/sylar
+3. https://github.com/nginx
+4. https://github.com/Tencent/libco
 
 
