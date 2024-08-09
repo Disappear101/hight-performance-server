@@ -218,5 +218,7 @@ The hooked io operations was implemented to manage io in a customized way that i
 2. https://github.com/sylar-yin/sylar
 3. https://github.com/nginx
 4. https://github.com/Tencent/libco
+5. https://github.com/nodejs/http-parser/blob/main/http_parser.h
+6. https://github.com/mongrel2/mongrel2/tree/master/src/http11
 
 
